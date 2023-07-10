@@ -6,7 +6,7 @@ import geopandas as gpd
 from urllib.parse import urlencode
 
 # %%
-def get_api_data_list(base_url, id_peri_list, params=None, debug=False):
+def _get_api_data_list(base_url, id_peri_list, params=None, debug=False):
     df_list = []  # Liste pour stocker les DataFrames de chaque page de résultats
     
     if isinstance(id_peri_list, str):
@@ -79,7 +79,7 @@ def ind_conso_espace_communes(
     annee_min=None,
     annee_max=None
     ):
-    return get_api_data_list(
+    return _get_api_data_list(
         base_url='https://apidf-preprod.cerema.fr/indicateurs/conso_espace/communes/',
         id_peri_list=code_insee,
         params={                
@@ -105,7 +105,7 @@ def ind_conso_espace_communes_g(
     total=False
     ):
 
-    data_api = get_api_data_list(
+    data_api = _get_api_data_list(
         base_url='https://apidf-preprod.cerema.fr/indicateurs/conso_espace/communes/',
         id_peri_list=code_insee,
         params={                
@@ -174,7 +174,7 @@ def ind_conso_espace_dep(
     annee_min=None,
     annee_max=None
     ):
-    return get_api_data_list(
+    return _get_api_data_list(
         base_url='https://apidf-preprod.cerema.fr/indicateurs/conso_espace/departements/',
         id_peri_list=coddep,
         params={                
@@ -197,7 +197,7 @@ def ind_conso_espace_dep_g(
     total=False
     ):
 
-    data_api = get_api_data_list(
+    data_api = _get_api_data_list(
         base_url='https://apidf-preprod.cerema.fr/indicateurs/conso_espace/departements/',
         id_peri_list=coddep,
         params={                
@@ -268,7 +268,7 @@ def ind_dv3f_aav_annuel(
     annee=None,
     ordering=None
     ):
-    return get_api_data_list(
+    return _get_api_data_list(
             base_url='https://apidf-preprod.cerema.fr/indicateurs/dv3f/aav/annuel/',
             id_peri_list=code_aav,
             #debug=True,
@@ -289,7 +289,7 @@ def ind_dv3f_aav_triennal(
     annee=None,
     ordering=None
     ):
-    return get_api_data_list(
+    return _get_api_data_list(
             base_url='https://apidf-preprod.cerema.fr/indicateurs/dv3f/aav/triennal/',
             id_peri_list=code_aav,
             #debug=True,
@@ -310,7 +310,7 @@ def ind_dv3f_com_annuel(
     annee=None,
     ordering=None
     ):
-    return get_api_data_list(
+    return _get_api_data_list(
             base_url='https://apidf-preprod.cerema.fr/indicateurs/dv3f/communes/annuel/',
             id_peri_list=code_insee,
             #debug=True,
@@ -331,7 +331,7 @@ def ind_dv3f_com_triennal(
     annee=None,
     ordering=None
     ):
-    return get_api_data_list(
+    return _get_api_data_list(
             base_url='https://apidf-preprod.cerema.fr/indicateurs/dv3f/communes/triennal/',
             id_peri_list=code_insee,
             #debug=True,
@@ -352,7 +352,7 @@ def ind_dv3f_dep_annuel(
     annee=None,
     ordering=None
     ):
-    return get_api_data_list(
+    return _get_api_data_list(
             base_url='https://apidf-preprod.cerema.fr/indicateurs/dv3f/departements/annuel/',
             id_peri_list=coddep,
             #debug=True,
@@ -373,7 +373,7 @@ def ind_dv3f_dep_triennal(
     annee=None,
     ordering=None
     ):
-    return get_api_data_list(
+    return _get_api_data_list(
             base_url='https://apidf-preprod.cerema.fr/indicateurs/dv3f/departements/triennal/',
             id_peri_list=coddep,
             #debug=True,
@@ -394,7 +394,7 @@ def ind_dv3f_epci_annuel(
     annee=None,
     ordering=None
     ):
-    return get_api_data_list(
+    return _get_api_data_list(
             base_url='https://apidf-preprod.cerema.fr/indicateurs/dv3f/epci/annuel/',
             id_peri_list=code_epci,
             #debug=True,
@@ -415,7 +415,7 @@ def ind_dv3f_epci_triennal(
     annee=None,
     ordering=None
     ):
-    return get_api_data_list(
+    return _get_api_data_list(
             base_url='https://apidf-preprod.cerema.fr/indicateurs/dv3f/epci/triennal/',
             id_peri_list=code_epci,
             #debug=True,
@@ -436,7 +436,7 @@ def ind_dv3f_reg_annuel(
     annee=None,
     ordering=None
     ):
-    return get_api_data_list(
+    return _get_api_data_list(
             base_url='https://apidf-preprod.cerema.fr/indicateurs/dv3f/regions/annuel/',
             id_peri_list=codreg,
             #debug=True,
@@ -457,7 +457,7 @@ def ind_dv3f_reg_triennal(
     annee=None,
     ordering=None
     ):
-    return get_api_data_list(
+    return _get_api_data_list(
             base_url='https://apidf-preprod.cerema.fr/indicateurs/dv3f/regions/triennal/',
             id_peri_list=codreg,
             #debug=True,
@@ -472,7 +472,7 @@ def ind_dv3f_reg_triennal(
 # %%
 # fonction quand on doit boucler sur une valeur de param et pas dans l'url
 
-def get_api_data_list_param(base_url, id_peri_list, params=None, debug=False):
+def _get_api_data_list_param(base_url, id_peri_list, params=None, debug=False):
     df_list = []  # Liste pour stocker les DataFrames de chaque page de résultats
     
     if debug:
@@ -558,7 +558,7 @@ def cartofriches_friches(
     surface_min=None,
     urba_zone_type=None
     ):
-    return get_api_data_list_param( 
+    return _get_api_data_list_param( 
         base_url='https://apidf-preprod.cerema.fr/cartofriches/friches/', 
         id_peri_list="code_insee", # juste "" 
         params={
@@ -583,7 +583,7 @@ def cartofriches_friches_dep(
     surface_min=None,
     urba_zone_type=None
     ):
-    return get_api_data_list_param( 
+    return _get_api_data_list_param( 
         base_url='https://apidf-preprod.cerema.fr/cartofriches/friches/', 
         id_peri_list="coddep", # juste "" 
         params={
@@ -602,7 +602,7 @@ def cartofriches_friches_dep(
 # ## fonction pour récupérer les données geo
 
 # %%
-def get_api_data_list_param_geo(base_url, id_peri_list, params=None, debug=False):
+def _get_api_data_list_param_geo(base_url, id_peri_list, params=None, debug=False):
     df_list = []  # Liste pour stocker les DataFrames de chaque page de résultats
     
     if debug:
@@ -691,7 +691,7 @@ def get_api_data_list_param_geo(base_url, id_peri_list, params=None, debug=False
         return None
     
 # %% [markdown]
-# ## get_api_data_list_param_geo
+# ## _get_api_data_list_param_geo
 
 # %%
 
@@ -703,7 +703,7 @@ def cartofriches_geofriches(
     surface_min=None,
     urba_zone_type=None
     ):
-    return get_api_data_list_param_geo( 
+    return _get_api_data_list_param_geo( 
         debug=False,
         base_url='https://apidf-preprod.cerema.fr/cartofriches/geofriches/', 
         id_peri_list="code_insee", 
@@ -728,7 +728,7 @@ def cartofriches_geofriches_dep(
     surface_min=None,
     urba_zone_type=None
     ):
-    return get_api_data_list_param_geo( 
+    return _get_api_data_list_param_geo( 
         debug=False,
         base_url='https://apidf-preprod.cerema.fr/cartofriches/geofriches/', 
         id_peri_list="coddep", 
