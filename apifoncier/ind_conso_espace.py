@@ -5,16 +5,20 @@ def communes(
     annee_min=None,
     annee_max=None
     ):
-    """Consommation d'espace par commune
+    """
+    Consommation d'espace par commune
 
     Args:
         code_insee (str): Code INSEE communal ou d'arrondissement municipal (possibilité de passer un vecteur de code insee sans limite maximum)
+        
         annee_min (int, optional): Année jusqu'à laquelle renvoyer les indicateurs d'artificialisation (incluse). Defaults to None.
+        
         annee_max (int, optional): Année à partir de laquelle renvoyer les indicateurs d'artificialisation (incluse). Defaults to None.
 
     Returns:
         dataframe: Renvoie les indicateurs de consommation d'espace pour la période comprise entre annee_min et annee_max, bornes incluses, à l'échelle communale
 
+    >>> apifoncier.conso_espace.communes(['97233','97234'])
     """
     return _get_api_data_list(
         base_url='https://apidf-preprod.cerema.fr/indicateurs/conso_espace/communes/',
@@ -26,21 +30,29 @@ def communes(
     )
 
 # %%
-# communes(['97233','97234'])
-
-# %%
-# communes('97233')
-
-# %% [markdown]
-# ## communes_g
-
-# %%
 def communes_g(
     code_insee,
     annee_min=None,
     annee_max=None,
     total=False
     ):
+    """
+    Consommation d'espace par commune (graphique)
+
+    Args:
+        code_insee (str): Code INSEE communal ou d'arrondissement municipal (possibilité de passer un vecteur de code insee sans limite maximum)
+        
+        annee_min (int, optional): Année jusqu'à laquelle renvoyer les indicateurs d'artificialisation (incluse). Defaults to None.
+        
+        annee_max (int, optional): Année à partir de laquelle renvoyer les indicateurs d'artificialisation (incluse). Defaults to None.
+
+        total(bool, optional): True pour afficher le total agrégé, False pour avoir par typologie
+
+    Returns:
+        graphique plotly: Renvoie les indicateurs de consommation d'espace pour la période comprise entre annee_min et annee_max, bornes incluses, à l'échelle communale
+
+    >>> apifoncier.conso_espace.communes_g(['97233','97234'],total=False)
+    """
 
     data_api = _get_api_data_list(
         base_url='https://apidf-preprod.cerema.fr/indicateurs/conso_espace/communes/',
@@ -97,20 +109,26 @@ def communes_g(
     return fig.show()
 
 
-# communes_g(['59002','59350'],total=False)
-
-
-
-
-# %% [markdown]
-# ## dep
-
 # %%
 def dep(
     coddep,
     annee_min=None,
     annee_max=None
     ):
+    """Consommation d'espace par département
+
+    Args:
+        coddep (str): Code INSEE du département (possibilité de passer un vecteur de code insee sans limite maximum)
+        
+        annee_min (int, optional): Année jusqu'à laquelle renvoyer les indicateurs d'artificialisation (incluse). Defaults to None.
+        
+        annee_max (int, optional): Année à partir de laquelle renvoyer les indicateurs d'artificialisation (incluse). Defaults to None.
+
+    Returns:
+        dataframe: Renvoie les indicateurs de consommation d'espace pour la période comprise entre annee_min et annee_max, bornes incluses, à l'échelle départementale
+
+    >>> apifoncier.conso_espace.dep(['972','971'])
+    """
     return _get_api_data_list(
         base_url='https://apidf-preprod.cerema.fr/indicateurs/conso_espace/departements/',
         id_peri_list=coddep,
@@ -120,11 +138,6 @@ def dep(
             }
     )
 
-# %%
-# dep([10,11,972],annee_min=2019)
-
-# %% [markdown]
-# ## dep_g
 
 # %%
 def dep_g(
@@ -133,7 +146,23 @@ def dep_g(
     annee_max=None,
     total=False
     ):
+    """
+    Consommation d'espace par département (graphique)
 
+    Args:
+        coddep (str): Code INSEE u département (possibilité de passer un vecteur de code insee sans limite maximum)
+        
+        annee_min (int, optional): Année jusqu'à laquelle renvoyer les indicateurs d'artificialisation (incluse). Defaults to None.
+        
+        annee_max (int, optional): Année à partir de laquelle renvoyer les indicateurs d'artificialisation (incluse). Defaults to None.
+
+        total(bool, optional): True pour afficher le total agrégé, False pour avoir par typologie
+
+    Returns:
+        graphique plotly: Renvoie les indicateurs de consommation d'espace pour la période comprise entre annee_min et annee_max, bornes incluses, à l'échelle départementale
+
+    >>> apifoncier.conso_espace.dep_g(['59','62'],total=True)
+    """
     data_api = _get_api_data_list(
         base_url='https://apidf-preprod.cerema.fr/indicateurs/conso_espace/departements/',
         id_peri_list=coddep,
@@ -192,5 +221,3 @@ def dep_g(
         
     return fig.show()
 
-
-# dep_g(['59','62'],total=True)

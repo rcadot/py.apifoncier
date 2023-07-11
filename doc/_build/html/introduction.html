@@ -1,0 +1,398 @@
+
+<!DOCTYPE html>
+
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Présentation du package &#8212; Documentation apifoncier 0.0.9</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/basic_mod.css?v=0.7.0-1" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/translations.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <script src="_static/js/petite-vue.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Consommation ENAF" href="ind_conso_espace.html" />
+    <link rel="prev" title="Bienvenue sur la documentation du package apifoncier !" href="index.html" /> 
+  </head><body data-dark_mode_code_blocks="true">
+
+<div id="top_nav">
+    
+
+    <nav>
+        
+            
+        
+
+        <p id="toggle_sidebar">
+            <a href="#" title="Toggle sidebar">|||</a>
+        </p>
+        <h1><a href="index.html" title="Go to homepage">Documentation apifoncier 0.0.9</a></h1>
+
+        <a id="mode_toggle" href="#" @click.prevent="handleClick" :title="mode">
+    <template v-if="mode == 'light'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_light"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M67.48,18.073c1.913,-1.912 1.913,-5.018 0,-6.931c-1.912,-1.912 -5.018,-1.912 -6.931,0l-6.798,6.799c-1.912,1.912 -1.912,5.018 0,6.931c1.913,1.912 5.018,1.912 6.931,-0l6.798,-6.799Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.728,61.108c1.912,-1.913 1.912,-5.018 -0,-6.931c-1.913,-1.913 -5.019,-1.913 -6.931,-0l-6.799,6.798c-1.912,1.913 -1.912,5.019 0,6.931c1.913,1.913 5.019,1.913 6.931,0l6.799,-6.798Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.682,54.177c-1.913,-1.913 -5.018,-1.913 -6.931,-0c-1.912,1.913 -1.912,5.018 0,6.931l6.798,6.798c1.913,1.913 5.019,1.913 6.931,0c1.913,-1.912 1.913,-5.018 0,-6.931l-6.798,-6.798Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M4.901,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,-0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M18.929,11.142c-1.912,-1.912 -5.018,-1.912 -6.931,0c-1.912,1.913 -1.912,5.019 0,6.931l6.799,6.799c1.912,1.912 5.018,1.912 6.931,-0c1.912,-1.913 1.912,-5.019 -0,-6.931l-6.799,-6.799Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.108,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c-0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c-0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'dark'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_dark"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.901,2.196 -4.901,4.901c0,2.705 2.197,4.901 4.901,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.662,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.989,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.732,61.103c1.91,-1.91 1.91,-5.011 0,-6.921l-0.009,-0.01c-1.91,-1.91 -5.012,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.909,1.91 5.011,1.91 6.92,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.672,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.52,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l-0,-0.01c-0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.901,2.196 -4.901,4.901c0,2.704 2.197,4.9 4.901,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.73,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 -0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.098,34.623c-2.699,0 -4.891,2.192 -4.891,4.892l-0,0.019c-0,2.699 2.192,4.891 4.891,4.891c2.7,0 4.892,-2.192 4.892,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.892,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'darkest'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_darkest"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><path d="M39.315,23.791c8.684,-0 15.734,7.05 15.734,15.733c0,8.684 -7.05,15.734 -15.734,15.734c-8.683,0 -15.733,-7.05 -15.733,-15.734c-0,-8.683 7.05,-15.733 15.733,-15.733Zm0,4.737c6.069,0 10.997,4.927 10.997,10.996c-0,6.069 -4.928,10.996 -10.997,10.996c-6.068,0 -10.996,-4.927 -10.996,-10.996c0,-6.069 4.928,-10.996 10.996,-10.996Z" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.216,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.9,2.196 -4.9,4.901c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.666,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.99,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.737,61.103c1.909,-1.91 1.909,-5.011 -0,-6.921l-0.01,-0.01c-1.91,-1.91 -5.011,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.91,1.91 5.011,1.91 6.921,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.676,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.524,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l0,-0.01c0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.216,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901c-0,2.704 2.196,4.9 4.9,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.734,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.103,34.623c-2.7,0 -4.892,2.192 -4.892,4.892l-0,0.019c-0,2.699 2.192,4.891 4.892,4.891c2.699,0 4.891,-2.192 4.891,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.891,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+</a>
+
+<script>
+(function() {
+    const LOCAL_STORAGE_KEY = 'piccoloThemeMode'
+
+    var initialMode = localStorage.getItem(LOCAL_STORAGE_KEY)
+
+    if (initialMode) {
+        // Make sure the value in local storage is valid
+        if (['light', 'dark', 'darkest'].indexOf(initialMode) == -1) {
+            initialMode = 'light'
+            localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+        }
+    } else {
+        // Check if the client prefers dark mode
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            initialMode = 'dark'
+        } else {
+            initialMode = 'light'
+        }
+        localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+    }
+
+    document.documentElement.dataset.mode = initialMode
+
+    PetiteVue.createApp({
+        'mode': initialMode,
+        handleClick() {
+            let currentMode = this.mode
+
+            if (currentMode == 'light') {
+                this.mode = 'dark'
+            } else if (currentMode == 'dark') {
+                this.mode = 'darkest'
+            } else if (currentMode == 'darkest') {
+                this.mode = 'light'
+            }
+
+            document.documentElement.dataset.mode = this.mode
+            localStorage.setItem(LOCAL_STORAGE_KEY, this.mode)
+
+            console.log(this.mode)
+        }
+    }).mount('#mode_toggle')
+})()
+</script>
+            <p class="mobile_search_link">
+                <a href="search.html" title="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 64" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2">
+                        <path d="M14.873 40.009c-2.315-3.943-3.642-8.532-3.642-13.429C11.231 11.91 23.141 0 37.811 0s26.58 11.91 26.58 26.58-11.91 26.58-26.58 26.58a26.44 26.44 0 0 1-14.277-4.161L9.739 62.794a3.12 3.12 0 0 1-4.413 0L.913 58.382c-1.217-1.218-1.217-3.196 0-4.413l13.96-13.96zM37.811 8.054c10.225 0 18.526 8.301 18.526 18.526s-8.301 18.526-18.526 18.526-18.526-8.301-18.526-18.526S27.586 8.054 37.811 8.054z" fill="#fff" />
+                    </svg>
+                </a>
+            </p>
+        
+
+        <div class="searchbox_wrapper">
+            
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Recherche rapide</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+    </nav>
+</div>
+
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Présentation du package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#fonctions-et-donnees-disponibles">Fonctions et données disponibles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#ressources">Ressources</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Les différents modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ind_conso_espace.html">Consommation ENAF</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ind_dv3f.html">Indicateurs de prix</a></li>
+</ul>
+
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="admonition warning">
+<p class="admonition-title">Avertissement</p>
+<p>Il s’agit d’une version de développement. Des modifications sur les fonctions peuvent intervenir.
+Consultez l’article <a href="#id1"><span class="problematic" id="id2">`Changements &lt;&gt;`_</span></a> pour plus d’informations.</p>
+</div>
+<section id="presentation-du-package">
+<h1>Présentation du package<a class="headerlink" href="#presentation-du-package" title="Lien permanent vers cette rubrique">¶</a></h1>
+<p>Grâce au package <code class="docutils literal notranslate"><span class="pre">apifoncier</span></code>, vous pouvez interroger les
+différentes bases de données foncières produites par le Cerema et la
+DGALN directement depuis <code class="docutils literal notranslate"><span class="pre">python</span></code> ! Une partie des données est interrogeable
+uniquement avec un accès restreint lié à vos droits. Pensez à vous
+rendre sur
+<a class="reference external" href="https://consultdf.cerema.fr/consultdf/services/apidf">ConsultDF</a>
+pour obtenir un accès.</p>
+</section>
+<section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Lien permanent vers cette rubrique">¶</a></h1>
+<p>Vous pouvez installer <code class="docutils literal notranslate"><span class="pre">apifoncier</span></code> depuis
+<a class="reference external" href="https://github.com/">GitHub</a> avec le code suivant :</p>
+</section>
+<section id="fonctions-et-donnees-disponibles">
+<h1>Fonctions et données disponibles<a class="headerlink" href="#fonctions-et-donnees-disponibles" title="Lien permanent vers cette rubrique">¶</a></h1>
+<p>Vous trouverez ci-dessous l’ensemble des informations sur les jeux de
+données disponibles grâce à ce package. N’hésitez pas à parcourir
+l’ensemble des articles de la documentation ainsi que les pages dédiées
+à chaque fonction.</p>
+<p>Retrouvez également des fonctions de valorisation des données telles que
+des <a href="#id3"><span class="problematic" id="id4">`graphiques &lt;&gt;`_</span></a>, <a href="#id5"><span class="problematic" id="id6">`cartographies dynamiques &lt;&gt;`_</span></a> ou encore <a href="#id7"><span class="problematic" id="id8">`tableaux &lt;&gt;`_</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>À la différence de l’utilisation de l’API en directe, le package
+permet d’obtenir les données pour le périmètre de votre choix. Vous
+pouvez ainsi fournir une liste ou un vecteur de <code class="docutils literal notranslate"><span class="pre">code_insee</span></code>,
+<code class="docutils literal notranslate"><span class="pre">code_epci</span></code>, etc. sans limite de volume.</p>
+</div>
+<section id="indicateurs-de-consommation-despace-acces-libre">
+<h2>Indicateurs de consommation d’espace (accès libre)<a class="headerlink" href="#indicateurs-de-consommation-despace-acces-libre" title="Lien permanent vers cette rubrique">¶</a></h2>
+<blockquote>
+<div><p>La lutte contre la consommation excessive d’espace est un objectif
+prioritaire des dernières lois en matière d’urbanisme. Cependant, il
+est difficile de définir comme « excessive » la consommation sans
+disposer de moyens de mesure adaptés. Dans ce cadre, le Cerema produit
+annuellement des données sur la consommation d’espaces à l’aide des
+Fichiers fonciers.</p>
+<p><cite>Pour plus d’informations sur la consommation
+d’espaces &lt;https://artificialisation.developpement-durable.gouv.fr/suivi-consommation-espaces-naf&gt;</cite></p>
+</div></blockquote>
+<p>Le package <code class="docutils literal notranslate"><span class="pre">apifoncier</span></code> permet d’interroger l’ensemble du territoire
+français afin d’obtenir les indicateurs de consommation d’espace pour la
+période comprise entre une deux années à l’échelle communale ou
+départementale.</p>
+<p>Plus d’informations sur les fonctions disponibles en allant l’
+<a class="reference external" href="https://">article dédidé</a></p>
+</section>
+<section id="indicateurs-de-prix-acces-libre">
+<h2>Indicateurs de prix (accès libre)<a class="headerlink" href="#indicateurs-de-prix-acces-libre" title="Lien permanent vers cette rubrique">¶</a></h2>
+<blockquote>
+<div><p>La base de données DV3F facilite l’observation des marchés et permet
+de produire des indicateurs de prix et de volumes de transactions à
+différentes échelles géographiques afin d’apprécier et d’étudier les
+marchés fonciers et immobiliers d’un territoire.</p>
+<p>Retrouvez l’ensemble de la documentation en suivant <a class="reference external" href="https://doc-datafoncier.cerema.fr/dv3f/tuto/indicateurs_agreges">ce
+lien</a>.</p>
+</div></blockquote>
+<p>Les indicateurs de prix sont disponibles annuellement et de manière
+triennale à plusieurs échelles :</p>
+<ul class="simple">
+<li><p>Régions ;</p></li>
+<li><p>Départements ;</p></li>
+<li><p>Aires d’attractivités des villes ;</p></li>
+<li><p>EPCI ;</p></li>
+<li><p>Communes.</p></li>
+</ul>
+<p>La période proposée court de 2010 à 2022 avec une exhaustivité moindre
+sur les derniers semestres.</p>
+<p>Les indicateurs proposés dans la version 2023-1 de DV3F utilisent les
+périmètres administratifs au 1er janvier 2022.</p>
+<p>Plus d’informations sur les fonctions disponibles en allant sur
+l’<a href="#id9"><span class="problematic" id="id10">`article dédié &lt;&gt;`_</span></a></p>
+</section>
+<section id="cartofriches-acces-libre">
+<h2>Cartofriches (accès libre)<a class="headerlink" href="#cartofriches-acces-libre" title="Lien permanent vers cette rubrique">¶</a></h2>
+<blockquote>
+<div><p>Les travaux effectués par le Cerema pour constituer un premier
+inventaire national ont permis de montrer la possibilité de
+pré-identifier une partie des friches, mais ils montrent aussi les
+limites de l’approche nationale. En effet, sur un sujet aussi complexe
+que les friches, les bases nationales manquent d’exhaustivité et de
+mise à jour. La comparaison de la base nationale avec des inventaires
+locaux met en évidence l’absence de définition réglementaire d’une
+friche, et le peu de mise à jour de certaines informations nationales.</p>
+<p>Ainsi, si une base nationale permet d’avoir des informations homogènes
+sur le territoire métropolitain, une base de données consolidées
+nécessite la contribution large de nombreux acteurs proches du
+terrain, et l’agglomération de données issues d’observatoires locaux,
+en partageant un minimum de concepts.</p>
+<p><a class="reference external" href="https://artificialisation.developpement-durable.gouv.fr/cartofriches/donnees-utilisees">Plus d’informations sur cartofriches</a></p>
+</div></blockquote>
+<p><a href="#id11"><span class="problematic" id="id12">`Plus d’informations sur les fonctions disponibles en allant sur
+l’article dédié &lt;&gt;`_</span></a></p>
+</section>
+<section id="dvf-acces-libre">
+<h2>DVF+ (accès libre)<a class="headerlink" href="#dvf-acces-libre" title="Lien permanent vers cette rubrique">¶</a></h2>
+<blockquote>
+<div><p>La DGALN et le Cerema propose “DVF+ open-data”, qui permet d’accéder
+librement aux données DV3F sous la forme d’une base de données
+géolocalisée aisément exploitable pour l’observation des marchés
+fonciers et immobiliers.</p>
+<p>La structuration de la donnée DVF proposée s’appuie sur le modèle de
+données partagé dit “DVF+”, issu des travaux menés à l’initiative du
+groupe national DVF et qui existe depuis 2013. Ce modèle, développé
+pour faciliter les analyses, fournit notamment une table des mutations
+dans laquelle chaque ligne correspond aux informations et à la
+localisation d’une transaction.</p>
+<p>La géolocalisation s’appuie sur les différents millésimes du Plan
+cadastral informatisé également disponibles en open-data sur
+data.gouv.fr.</p>
+<p>Chacune des variables du modèle DVF+ est calculée uniquement à partir
+des données brutes de DVF. Les variables calculées s’appliquent sur
+l’ensemble du territoire et relèvent d’une méthodologie partagée. Il
+n’y a pas de données exogènes à ce stade hormis les données de
+géolocalisation issue du PCI Vecteur. A noter que le modèle DVF+
+constitue également le socle pour la constitution de la base de
+données DV3F.</p>
+<p><a class="reference external" href="http://doc-datafoncier.cerema.fr/dv3f/tuto/objectif_tutoriel">Pour en savoir plus sur DVF+</a></p>
+</div></blockquote>
+<p><a href="#id13"><span class="problematic" id="id14">`Plus d’informations sur les fonctions disponibles en allant sur
+l’[article dédié &lt;&gt;`_</span></a></p>
+</section>
+<section id="dv3f-acces-restreint">
+<h2>DV3F (accès restreint)<a class="headerlink" href="#dv3f-acces-restreint" title="Lien permanent vers cette rubrique">¶</a></h2>
+<blockquote>
+<div><p>L’amélioration du fonctionnement des marchés fonciers et immobiliers
+en France, la recherche d’une meilleure transparence sur les prix des
+transactions, nécessite aujourd’hui l’accès à une donnée large et
+aussi complète que possible sur les transactions, les biens et les
+prix.</p>
+<p>La Direction Générale des Finances Publiques (DGFiP) propose
+gratuitement et en open-data le fichier “Demande de Valeurs Foncières”
+(DVF) qui recense l’ensemble des mutations foncières à titre onéreux
+publiées dans les services de la publicité foncière.</p>
+<p>Cette donnée est riche et précise mais reste néanmoins difficilement
+exploitable.</p>
+<p>C’est pourquoi le Ministère du Logement a missionné le Cerema pour
+travailler à une structuration de la donnée DVF en y associant des
+données foncières complémentaires permettant des analyses plus fines.</p>
+<p>Ces travaux ont conduit à la constitution de la base de données DV3F
+ainsi qu’à des outils facilitant son exploitation.</p>
+<p>Pour les acteurs ne pouvant bénéficier de DV3F, les données open-data
+sont également disponibles librement sous un format “DVF+ - open-data”
+structuré et géolocalisé.</p>
+<p>[Plus d’informations sur DV3F](<a class="reference external" href="https://datafoncier.cerema.fr/dv3f">https://datafoncier.cerema.fr/dv3f</a>)</p>
+</div></blockquote>
+<p>Plus d’informations sur les fonctions disponibles en allant sur
+l’[article dédié]().</p>
+</section>
+<section id="fichiers-fonciers-acces-restreint">
+<h2>Fichiers fonciers (accès restreint)<a class="headerlink" href="#fichiers-fonciers-acces-restreint" title="Lien permanent vers cette rubrique">¶</a></h2>
+<blockquote>
+<div><p>Depuis 2009, le Cerema retraite, géolocalise et enrichit les Fichiers
+fonciers de la Direction Générale des Finances Publiques (DGFiP) pour
+le compte du ministère en charge du Logement, des services de la
+Direction Générale de l’Aménagement, du Logement et de la Nature
+(DGALN), afin de permettre aux acteurs publics de réaliser facilement
+des analyses fines et comparables sur leur territoire.</p>
+<p>Les nouvelles politiques publiques et les stratégies d’aménagement
+foncier amènent de nombreux acteurs publics à se saisir de cette base
+de données nationale et complète.</p>
+<p>Les Fichiers fonciers décrivent de manière détaillée le foncier, les
+locaux ainsi que les différents droits de propriété qui leur sont
+liés. Ils sont aujourd’hui devenus essentiels dans de nombreux
+domaines tels que l’occupation du sol, l’aménagement, le logement, le
+risque et l’énergie.</p>
+<p>La base est disponible sous forme de millésimes via deux produits :</p>
+<ul class="simple">
+<li><p>les tables principales</p></li>
+<li><p>les tables agrégées (tables communales, carroyages, etc.).</p></li>
+</ul>
+<p>[Plus d’informations sur les fichiers
+fonciers](<a class="reference external" href="https://datafoncier.cerema.fr/fichiers-fonciers">https://datafoncier.cerema.fr/fichiers-fonciers</a>)</p>
+<p><a href="#id15"><span class="problematic" id="id16">`Plus d’informations sur les fonctions disponibles en allant sur
+l’article dédié &lt;&gt;`_</span></a>.</p>
+</div></blockquote>
+</section>
+</section>
+<section id="ressources">
+<h1>Ressources<a class="headerlink" href="#ressources" title="Lien permanent vers cette rubrique">¶</a></h1>
+<p>Pour retrouver toutes les informations sur les données foncières :
+<a class="reference external" href="https://datafoncier.cerema.fr">datafoncier.cerema.fr</a></p>
+<p>Dictionnaire et documentation sur toutes les variables :
+<a class="reference external" href="https://doc-datafoncier.cerema.fr">doc-datafoncier.cerema.fr</a></p>
+<p><a class="reference external" href="https://apidf-preprod.cerema.fr/swagger/">Pour en savoir plus sur l’API données foncières du
+cerema.</a></p>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+    
+        <div id="show_right_sidebar">
+            <p><a class="toggle_right_sidebar" href="#"><span class="icon">&lt;</span><span>Page contents<span></a></p>
+        </div>
+
+        <div id="right_sidebar">
+            <p><a class="toggle_right_sidebar" href="#"><span class="icon">&gt;</span><span>Page contents:<span></a></p>
+            <div class="page_toc">
+                <ul>
+<li><a class="reference internal" href="#">Présentation du package</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#fonctions-et-donnees-disponibles">Fonctions et données disponibles</a><ul>
+<li><a class="reference internal" href="#indicateurs-de-consommation-despace-acces-libre">Indicateurs de consommation d’espace (accès libre)</a></li>
+<li><a class="reference internal" href="#indicateurs-de-prix-acces-libre">Indicateurs de prix (accès libre)</a></li>
+<li><a class="reference internal" href="#cartofriches-acces-libre">Cartofriches (accès libre)</a></li>
+<li><a class="reference internal" href="#dvf-acces-libre">DVF+ (accès libre)</a></li>
+<li><a class="reference internal" href="#dv3f-acces-restreint">DV3F (accès restreint)</a></li>
+<li><a class="reference internal" href="#fichiers-fonciers-acces-restreint">Fichiers fonciers (accès restreint)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ressources">Ressources</a></li>
+</ul>
+
+            </div>
+        </div>
+    
+
+      <div class="clearer"></div>
+    </div>
+    <div class="button_nav_wrapper">
+        <div class="button_nav">
+            <div class="left">
+                
+                <a href="index.html">
+                    <span class="icon">&lt;</span><span>Bienvenue sur la documentation du package <code class="docutils literal notranslate"><span class="pre">apifoncier</span></code> !</span></a>
+                
+            </div>
+
+            <div class="right">
+                
+                    <a href="ind_conso_espace.html"><span>Consommation ENAF</span><span class="icon">&gt;</span></a>
+                
+            </div>
+        </div>
+    </div>
+
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2023, Romain Cadot.
+      Créé en utilisant <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    </div>
+
+<p id="theme_credit">Styled using the <a href="https://github.com/piccolo-orm/piccolo_theme">Piccolo Theme</a></p>
+  </body>
+</html>
