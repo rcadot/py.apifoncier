@@ -1,1 +1,4 @@
 apifoncier
+sphinx
+piccolo_theme
+ghp-import
