@@ -57,7 +57,7 @@ des [graphiques](), [cartographies dynamiques]() ou encore [tableaux]().
 > *[Pour plus d’informations sur la consommation
 > d’espaces](https://artificialisation.developpement-durable.gouv.fr/suivi-consommation-espaces-naf)*
 
-Le package `{apifoncier}` permet d’interroger l’ensemble du territoire
+Le package `apifoncier` permet d’interroger l’ensemble du territoire
 français afin d’obtenir les indicateurs de consommation d’espace pour la
 période comprise entre une deux années à l’échelle communale ou
 départementale.
