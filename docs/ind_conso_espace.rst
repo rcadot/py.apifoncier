@@ -13,7 +13,6 @@ La fonction ``apifoncier.ind_conso_espace.communes_g()`` permet de générer un 
     
     apifoncier.ind_conso_espace.communes_g(['97233','97234'],total=False)
 
-Par défaut, les consommations sont affichées en hectares, mais on peut les indiquer en m² en choisissant ``hectare=FALSE``.
 
 
 
