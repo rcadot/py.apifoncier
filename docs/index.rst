@@ -8,14 +8,20 @@ Bienvenue sur la documentation du package ``apifoncier`` !
 
 .. toctree::
    :maxdepth: 1
+   :caption: Présentation
 
    ./introduction.rst
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Les différents modules:
 
    ./ind_conso_espace.rst
    ./ind_dv3f.rst
    ./cartofriches.rst
+ 
+.. toctree::
+   :maxdepth: 2
+   :caption: Les Changements
 
+   ./changes.rst

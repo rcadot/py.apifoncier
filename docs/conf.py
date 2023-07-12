@@ -37,3 +37,8 @@ language = 'fr'
 
 html_theme = 'piccolo_theme'
 html_static_path = ['_static']
+html_theme_options = {
+    "source_url": 'https://github.com/rcadot/py.apifoncier',
+    "source_icon": "github"
+}
+
