@@ -60,8 +60,8 @@ français afin d’obtenir les indicateurs de consommation d’espace pour la
 période comprise entre une deux années à l’échelle communale ou
 départementale.
 
-Plus d’informations sur les fonctions disponibles en allant l’
-`article dédidé <https://>`_
+`Plus d’informations sur les fonctions disponibles en allant l’
+article dédié. <https://>`_
 
 Indicateurs de prix (accès libre)
 ---------------------------------------
@@ -89,8 +89,8 @@ sur les derniers semestres.
 Les indicateurs proposés dans la version 2023-1 de DV3F utilisent les
 périmètres administratifs au 1er janvier 2022.
 
-Plus d’informations sur les fonctions disponibles en allant sur
-l’`article dédié <>`_
+`Plus d’informations sur les fonctions disponibles en allant sur
+l’article dédié. <>`_
 
 Cartofriches (accès libre)
 -------------------------------
@@ -113,7 +113,7 @@ Cartofriches (accès libre)
     `Plus d’informations sur cartofriches <https://artificialisation.developpement-durable.gouv.fr/cartofriches/donnees-utilisees>`_
 
 `Plus d’informations sur les fonctions disponibles en allant sur
-l’article dédié <>`_
+l’article dédié. <>`_
 
 DVF+ (accès libre)
 ---------------------
@@ -145,7 +145,7 @@ DVF+ (accès libre)
     `Pour en savoir plus sur DVF+ <http://doc-datafoncier.cerema.fr/dv3f/tuto/objectif_tutoriel>`_
 
 `Plus d’informations sur les fonctions disponibles en allant sur
-l’[article dédié <>`_
+l’article dédié. <>`_
 
 DV3F (accès restreint)
 -------------------------
@@ -177,8 +177,8 @@ DV3F (accès restreint)
 
 [Plus d’informations sur DV3F](https://datafoncier.cerema.fr/dv3f)
 
-Plus d’informations sur les fonctions disponibles en allant sur
-l’[article dédié]().
+`Plus d’informations sur les fonctions disponibles en allant sur
+l’article dédié. <>`_
 
 Fichiers fonciers (accès restreint)
 --------------------------------------
