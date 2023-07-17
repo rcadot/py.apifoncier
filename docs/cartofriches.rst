@@ -8,7 +8,7 @@ Pour un ou plusieurs département :
 
 .. code-block:: python
 
-    apifoncier.cartofriches.friches_dep(['62','59'])
+    apifoncier.cartofriches.friches_dep(coddep = ['62','59'])
 
 
 Pour une ou plusieurs communes :
@@ -29,10 +29,6 @@ cartofriches :
 
 .. autofunction:: apifoncier.cartofriches.friches
 
-.. autofunction:: apifoncier.cartofriches.friches_dep
-
 .. autofunction:: apifoncier.cartofriches.geofriches
 
-.. autofunction:: apifoncier.cartofriches.geofriches_dep
-
-.. autofunction:: apifoncier.cartofriches.friches_site
+.. autofunction:: apifoncier.cartofriches.friche
