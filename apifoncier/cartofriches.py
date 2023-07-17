@@ -53,6 +53,26 @@ def geofriches(
     surface_min=None,
     urba_zone_type=None,
 ):
+    """Retourne les friches issues de Cartofriches pour la commune demandée sous forme d'un geodataframe
+
+    Args:
+        code_insee (str): Code INSEE communal ou d'arrondissement municipal (possibilité de passer une liste de code insee sans limite maximum)
+
+        **fields (str, optional):** Retourne tous les champs associés si fields=all, sinon retourne uniquement une selection de champs. Defaults to None.
+
+        ordering (str, optional): Which field to use when ordering the results. Defaults to None.
+
+        surface_max (int, optional): Surface maximale de l'unité foncière. Defaults to None.
+
+        surface_min (int, optional): Surface minimale de l'unité foncière. Defaults to None.
+
+        urba_zone_type (str, optional): Type de zone d'urbanisme. Defaults to None.
+
+    Returns:
+        dataframe: Retourne les friches issues de Cartofriches pour la commune demandée
+
+    >>> apifoncier.cartofriches.friches(code_insee=[59350,59002])
+    """
     result = utils.Resultat("/cartofriches/geofriches/", **locals())
     gdf = result.get_geodataframe()
     return gdf
