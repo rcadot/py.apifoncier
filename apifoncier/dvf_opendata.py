@@ -4,16 +4,14 @@ from .config import get_param
 from . import utils
 
 
-def friches(
+def mutations(
     code_insee=None,
-    coddep=None,
     in_bbox=None,
     lon_lat=None,
     fields=None,
     ordering=None,
-    surface_max=None,
-    surface_min=None,
-    urba_zone_type=None,
+    codtypbien=None,
+    anneemut_min=None,
 ):
     """Retourne les friches issues de Cartofriches pour la commune demandée
 
@@ -37,29 +35,27 @@ def friches(
 
     >>> apifoncier.cartofriches.friches([59350,59002])
     """
-    result = utils.Resultat("/cartofriches/friches/", **locals())
+    result = utils.Resultat("/dvf_opendata/mutations/", **locals())
     df = result.get_dataframe()
     return df
 
 
-def geofriches(
+def geomutations(
     code_insee=None,
-    coddep=None,
     in_bbox=None,
     lon_lat=None,
     fields=None,
     ordering=None,
-    surface_max=None,
-    surface_min=None,
-    urba_zone_type=None,
+    codtypbien=None,
+    anneemut_min=None,
 ):
-    result = utils.Resultat("/cartofriches/geofriches/", **locals())
+    result = utils.Resultat("/dvf_opendata/geomutations/", **locals())
     gdf = result.get_geodataframe()
     return gdf
 
 
-def friche(site_id=None):
+def mutation(idmutation=None):
     base_url = get_param("BASE_URL")
-    url = f"""{base_url}/cartofriches/friches/{site_id}/"""
+    url = f"""{base_url}/dvf_opendata/mutations/{idmutation}/"""
     response = utils.get_api_response(url)
     return pd.DataFrame.from_dict(response)
