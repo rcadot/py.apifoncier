@@ -18,6 +18,7 @@ from .exceptions import TokenNotConfigured
 
 class Resultat:
     def __init__(self, url_endpoint, **kwargs):
+        self.use_token = kwargs.pop("use_token", False)
         self.base_url = get_param("BASE_URL")
         self.url = urljoin(self.base_url, url_endpoint)
         self.process_params(**kwargs)
@@ -48,21 +49,21 @@ class Resultat:
             lat_max = lat + 0.01
             in_bbox = f"""in_bbox={lon_min},{lat_min},{lon_max},{lat_max}"""
             url = f"""{self.url}?{in_bbox}&contains_geom={{"type": "Point", "coordinates":[{lon}, {lat}]}}"""
-            return get_all_data(url, self.params)
+            return get_all_data(url, self.params, use_token=self.use_token)
         if self.in_bbox:
             url = f"""{self.url}?in_bbox={",".join(self.in_bbox)}&page_size=500"""
-            return get_all_data(url, self.params)
+            return get_all_data(url, self.params, use_token=self.use_token)
         if self.code_insee:
             datas = []
             for code in self.code_insee:
                 url = f"""{self.url}?code_insee={code}&page_size=500"""
-                data = get_all_data(url, self.params)
+                data = get_all_data(url, self.params, use_token=self.use_token)
                 datas.append(data)
         if self.coddep:
             datas = []
             for code in self.coddep:
                 url = f"""{self.url}?coddep={code}&page_size=500"""
-                data = get_all_data(url, self.params)
+                data = get_all_data(url, self.params, use_token=self.use_token)
                 datas.append(data)
         data = datas[0] if len(datas) == 1 else pd.concat(datas, ignore_index=True)
         return data
@@ -77,21 +78,21 @@ class Resultat:
             lat_max = lat + 0.01
             in_bbox = f"""in_bbox={lon_min},{lat_min},{lon_max},{lat_max}"""
             url = f"""{self.url}?{in_bbox}&contains_geom={{"type": "Point", "coordinates":[{lon}, {lat}]}}"""
-            return get_all_geodata(url, self.params)
+            return get_all_geodata(url, self.params, use_token=self.use_token)
         if self.in_bbox:
             url = f"""{self.url}?in_bbox={",".join(self.in_bbox)}&page_size=500"""
-            return get_all_geodata(url, self.params)
+            return get_all_geodata(url, self.params, use_token=self.use_token)
         if self.code_insee:
             datas = []
             for code in self.code_insee:
                 url = f"""{self.url}?code_insee={code}&page_size=500"""
-                data = get_all_geodata(url, self.params)
+                data = get_all_geodata(url, self.params, use_token=self.use_token)
                 datas.append(data)
         if self.coddep:
             datas = []
             for code in self.coddep:
                 url = f"""{self.url}?coddep={code}&page_size=500"""
-                data = get_all_geodata(url, self.params)
+                data = get_all_geodata(url, self.params, use_token=self.use_token)
                 datas.append(data)
         data = (
             datas[0]
