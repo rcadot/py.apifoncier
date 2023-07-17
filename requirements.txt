@@ -1,3 +1,4 @@
-sphinx
-piccolo_theme
-ghp-import
+requests
+pandas
+geopandas
+plotly

@@ -1,2 +1,5 @@
 pytest
 black
+sphinx
+piccolo_theme
+ghp-import

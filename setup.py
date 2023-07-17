@@ -20,9 +20,9 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    py_modules=["utils", "cartofriches", "ind_conso_espace", "ind_dv3f"],
+    py_modules=["utils", "config", "cartofriches", "ind_conso_espace", "ind_dv3f"],
     keywords=["api", "foncier", "cerema", "dv3f", "friches", "artificialisation"],
-    install_requires=["pandas", "requests", "plotly.express", "geopandas"],
+    install_requires=["pandas", "requests", "plotly", "geopandas"],
     extras_require={"dev": ["pytest"]},
     python_requires=">=3.10.9",
 )

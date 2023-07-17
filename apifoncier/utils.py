@@ -1,299 +1,154 @@
+import warnings
 import requests
 import pandas as pd
+import geopandas as gpd
 import plotly.express as px
 import geopandas as gpd
 from urllib.parse import urlencode
 
-# %%
-def _get_api_data_list(base_url, id_peri_list, params=None, debug=False):
-    df_list = []  # Liste pour stocker les DataFrames de chaque page de résultats
-    
-    if isinstance(id_peri_list, str):
-        id_peri_list=[id_peri_list] # Convertir en liste si c'est une chaîne de caractères
+from .config import get_param
 
-    for id_peri in id_peri_list:
-        url = f"{base_url}{id_peri}/"  # Construire l'URL complète en ajoutant l'id_peri
-        dfs = []  # Liste pour stocker les DataFrames de chaque page de résultats
-        page = 1
-        params['page'] = 1
-        has_more_pages = True
+from .exceptions import ApiDFError
+from .exceptions import TokenNotConfigured
 
-        if debug:
-            print("id_peri:", id_peri)
-            print("url:", url)
+########################################################################
+# INTERROGATIONS
+########################################################################
 
-        while has_more_pages:
-            response = requests.get(url, params=params)
 
-            if debug:
-                print("response status code:", response.status_code)
+def get_all_geodata(url, params=None, use_token=False):
+    data_pages = []
+    has_more_pages = True
 
-            if response.status_code == 200:
-                data = response.json()['results']
-                df = pd.DataFrame(data)
-                dfs.append(df)
+    while has_more_pages:
+        response = get_api_response(url, params, use_token)
+        if len(response["features"]) > 0:
+            data_page = gpd.GeoDataFrame.from_features(response)
+            data_pages.append(data_page)
 
-                # Vérifier si d'autres pages de résultats existent
-                has_more_pages = response.json()['next'] is not None
+        if not response["next"]:
+            has_more_pages = False
+        else:
+            url = response["next"]
 
-                if debug:
-                    print("has_more_pages:", has_more_pages)
-                    print("page:", page)
-
-                page += 1
-
-                # Mettre à jour les paramètres de requête avec la page suivante
-                params['page'] = page
-            else:
-                # La requête a échoué, vous pouvez gérer l'erreur en conséquence
-                print("Erreur lors de la requête :", response.status_code)
-                return None
-
-        if dfs:
-            df_i = pd.concat(dfs, ignore_index=True)
-
-            if debug:
-                print("df_i shape:", df_i.shape)
-
-            df_list.append(df_i)  # Ajouter df_i à la liste df_list
-
-    if df_list:
-        df_final = pd.concat(df_list, ignore_index=True)
-
-        if debug:
-            print("df_final shape:", df_final.shape)
-
-        return df_final
+    if data_pages:
+        data = gpd.GeoDataFrame(pd.concat(data_pages, ignore_index=True))
+        return data
     else:
         return None
 
 
-# %%
-# fonction quand on doit boucler sur une valeur de param et pas dans l'url
+def get_all_data(url, params=None, use_token=False):
+    data_pages = []
+    has_more_pages = True
 
-def _get_api_data_list_param(base_url, id_peri_list, params=None, debug=False):
-    df_list = []  # Liste pour stocker les DataFrames de chaque page de résultats
-    
-    if debug:
-        print("pas_liste_avant :",not isinstance( params[id_peri_list], list))
-    
-    if not isinstance( params[id_peri_list], list):
-        params[id_peri_list] = [params[id_peri_list]]  # Convertir en liste si c'est pas une liste
+    while has_more_pages:
+        response = get_api_response(url, params, use_token)
+        if len(response["results"]) > 0:
+            data_page = pd.DataFrame(response["results"])
+            data_pages.append(data_page)
 
-    if debug:
-        print("pas_liste_apres :",not isinstance( params[id_peri_list], list))
-    
-    if debug:
-        print(params[id_peri_list])
-    
-    
-    
-    for id_peri in params[id_peri_list]:
-        url = f"{base_url}"  # Construire l'URL complète en ajoutant l'id_peri
-        dfs = []  # Liste pour stocker les DataFrames de chaque page de résultats
-        page = 1
-        params['page'] = 1
-        params[id_peri_list]=id_peri
-        has_more_pages = True
+        if not response["next"]:
+            has_more_pages = False
+        else:
+            url = response["next"]
 
-        if debug:
-            print("id_peri:", id_peri)
-            print("url:", url)
-
-        while has_more_pages:
-            response = requests.get(url, params=params)
-
-            if debug:
-                print("response status code:", response.status_code)
-
-            if response.status_code == 200:
-                data = response.json()['results']
-                df = pd.DataFrame(data)
-                dfs.append(df)
-
-                # Vérifier si d'autres pages de résultats existent
-                has_more_pages = response.json()['next'] is not None
-
-                if debug:
-                    print("has_more_pages:", has_more_pages)
-                    print("page:", page)
-
-                page += 1
-
-                # Mettre à jour les paramètres de requête avec la page suivante
-                params['page'] = page
-            else:
-                # La requête a échoué, vous pouvez gérer l'erreur en conséquence
-                print("Erreur lors de la requête :", response.status_code)
-                return None
-
-        if dfs:
-            df_i = pd.concat(dfs, ignore_index=True)
-
-            if debug:
-                print("df_i shape:", df_i.shape)
-
-            df_list.append(df_i)  # Ajouter df_i à la liste df_list
-
-    if df_list:
-        df_final = pd.concat(df_list, ignore_index=True)
-
-        if debug:
-            print("df_final shape:", df_final.shape)
-
-        return df_final
+    if data_pages:
+        data = pd.concat(data_pages)
+        return data
     else:
         return None
 
 
-# %% [markdown]
-# ## fonction pour récupérer les données geo
+def get_api_response(url, params=None, use_token=False):
+    HEADERS = {
+        "Content-Type": "application/json",
+    }
 
-# %%
-def _get_api_data_list_param_geo(base_url, id_peri_list, params=None, debug=False):
-    df_list = []  # Liste pour stocker les DataFrames de chaque page de résultats
-    
-    if debug:
-        print("pas_liste_avant :",not isinstance( params[id_peri_list], list))
-    
-    if not isinstance( params[id_peri_list], list):
-        params[id_peri_list] = [params[id_peri_list]]  # Convertir en liste si c'est pas une liste
+    PROXIES = None
+    proxy = get_param("PROXY")
+    if proxy:
+        PROXIES = {"http": proxy, "https": proxy}
 
-    if debug:
-        print("pas_liste_apres :",not isinstance( params[id_peri_list], list))
-    
-    if debug:
-        print(params[id_peri_list])
-    
-    
-    
-    for id_peri in params[id_peri_list]:
-        url = f"{base_url}"  # Construire l'URL complète en ajoutant l'id_peri
-        dfs = []  # Liste pour stocker les DataFrames de chaque page de résultats
-        page = 1
-        params['page'] = 1
-        params[id_peri_list]=id_peri
-        has_more_pages = True
+    if use_token:
+        token = get_param("TOKEN")
+        if not token:
+            raise TokenNotConfigured()
+        HEADERS["Authorization"] = "Token " + token
 
-        if debug:
-            print("id_peri:", id_peri)
-            print("url:", url)
+    response = requests.get(url, params=params, headers=HEADERS, proxies=PROXIES)
+    status_code = response.status_code
+    if status_code != 200:
+        raise ApiDFError(status_code, response.json()["detail"])
 
-        while has_more_pages:
-            response = requests.get(url, params=params)
-
-            if debug:
-                print("response status code:", response.status_code)
-
-            if response.status_code == 200:
-                # Filtrer les clés ayant des valeurs non nulles
-                filtered_params = {key: value for key, value in params.items() if value is not None}
-                
-                # Générer les paramètres de la requête dans l'URL
-                query_string = urlencode(filtered_params)
-                
-                # Concaténer l'URL de base avec les paramètres de la requête
-                full_url = f"{url}?{query_string}"
-
-                
-                if debug:
-                    print(full_url)
-                
-                df=gpd.read_file(full_url)
-                # data = response.json()['results']
-                # df = pd.DataFrame(data)
-                dfs.append(df)
-
-                # Vérifier si d'autres pages de résultats existent
-                has_more_pages = response.json()['next'] is not None
-
-                if debug:
-                    print("has_more_pages:", has_more_pages)
-                    print("page:", page)
-
-                page += 1
-
-                # Mettre à jour les paramètres de requête avec la page suivante
-                params['page'] = page
-            else:
-                # La requête a échoué, vous pouvez gérer l'erreur en conséquence
-                print("Erreur lors de la requête :", response.status_code)
-                return None
-
-        if dfs:
-            df_i = pd.concat(dfs, ignore_index=True)
-
-            if debug:
-                print("df_i shape:", df_i.shape)
-
-            df_list.append(df_i)  # Ajouter df_i à la liste df_list
-
-    if df_list:
-        df_final = pd.concat(df_list, ignore_index=True)
-
-        if debug:
-            print("df_final shape:", df_final.shape)
-
-        return df_final
-    else:
-        return None
-    
-# %% [markdown]
-# ## _get_api_data_list_param_geo
+    return response.json()
 
 
+########################################################################
+# GESTION PARAMETRES
+########################################################################
 
-# %%
-# on a quelques fois des résultats sous forme de dictionnaires non dataframable
-# fonction spéciale :
 
-def get_api_data_list_dic(base_url, id_peri_list, params=None, debug=False):
-    df_list = []  # Liste pour stocker les dict de chaque page de résultats
+def process_filter_params(**kwargs):
+    params = {}
+    for kw, value in kwargs.items():
+        if value is not None:
+            params[kw] = value
+    return params
 
-    if isinstance(id_peri_list, str):
-        id_peri_list = [id_peri_list]  # Convertir en liste si c'est une chaîne de caractères
 
-    for id_peri in id_peri_list:
-        url = f"{base_url}{id_peri}/"  # Construire l'URL complète en ajoutant l'id_peri
-        dfs = []  # Liste pour stocker les DataFrames de chaque page de résultats
-        page = 1
-        params['page'] = 1
-        has_more_pages = True
+def process_geo_params(**kwargs):
+    keyword_priority = ["lon_lat", "in_bbox", "code_insee", "coddep"]
+    # Vérification de l'obligation de préciser au moins un paramètre
+    if not any(keyword in kwargs for keyword in keyword_priority):
+        raise ValueError(
+            "Veuillez préciser au moins un paramètre parmi code_insee, in_bbox, lonlat et coddep."
+        )
 
-        if debug:
-            print("id_peri:", id_peri)
-            print("url:", url)
+    # Vérification si plusieurs mots-clés ont été utilisés
+    used_keywords = [keyword for keyword, value in kwargs.items() if value is not None]
+    for keyword in keyword_priority:
+        if keyword in used_keywords:
+            first_keyword = keyword
+            break
+    if len(used_keywords) > 1:
+        warning_message = f"Les mots-clés {', '.join(used_keywords)} ont été précisés. Seul le mot-clé {first_keyword} sera utilisé."
+        warnings.warn(warning_message, UserWarning)
 
-        while has_more_pages:
-            response = requests.get(url, params=params)
+    values = {keyword: None for keyword in keyword_priority}
+    # Vérification et traitement des paramètres selon la priorité des mots-clés
+    for keyword in keyword_priority:
+        if keyword in kwargs:
+            value = kwargs[keyword]
 
-            if debug:
-                print("response status code:", response.status_code)
+            if keyword == "lon_lat":
+                # Vérification que in_bbox est une liste de 4 floats
+                if (
+                    not isinstance(value, list)
+                    or len(value) != 2
+                    or not all(isinstance(x, float) for x in value)
+                ):
+                    raise ValueError(
+                        "Le paramètre lon_lat doit être une liste de 2 floats."
+                    )
+                values[keyword] = value
+                break
+            if keyword == "in_bbox":
+                # Vérification que in_bbox est une liste de 4 floats
+                if (
+                    not isinstance(value, list)
+                    or len(value) != 4
+                    or not all(isinstance(x, float) for x in value)
+                ):
+                    raise ValueError(
+                        "Le paramètre in_bbox doit être une liste de 4 floats."
+                    )
+                values[keyword] = value
+                break
+            elif keyword == "code_insee" or keyword == "coddep":
+                if isinstance(value, str):
+                    value = [value]
+                values[keyword] = value
+                break
 
-            if response.status_code == 200:
-                data = response.json()
-                dfs.append(data)
-
-                # Vérifier si d'autres pages de résultats existent
-                has_more_pages = False
-
-                if debug:
-                    print("has_more_pages:", has_more_pages)
-                    print("page:", page)
-
-                page += 1
-
-                # Mettre à jour les paramètres de requête avec la page suivante
-                params['page'] = page
-            else:
-                # La requête a échoué, vous pouvez gérer l'erreur en conséquence
-                print("Erreur lors de la requête :", response.status_code)
-                return None
-
-        if dfs:
-            df_list.extend(dfs)
-
-    if df_list:
-        return df_list
-    else:
-        return None
+    return tuple(values[keyword] for keyword in keyword_priority)
