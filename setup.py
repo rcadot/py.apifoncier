@@ -5,10 +5,9 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="apifoncier",
-    version="0.0.12",
+    version="0.0.17",
     description="Mobiliser les données foncières de l'api du Cerema directement avec python",
-    package_dir={"": "apifoncier"},
-    packages=find_packages(where="apifoncier"),
+    packages=find_packages(exclude=["tests"]),
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/rcadot/py.apifoncier",
@@ -20,9 +19,8 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    py_modules=["utils", "config", "cartofriches", "dvf_opendata", "dv3f"],
     keywords=["api", "foncier", "cerema", "dv3f", "friches", "artificialisation"],
-    install_requires=["pandas", "requests", "plotly", "geopandas"],
+    install_requires=["pandas", "requests", "plotly", "geopandas", "tqdm"],
     extras_require={"dev": ["pytest"]},
     python_requires=">=3.9",
 )

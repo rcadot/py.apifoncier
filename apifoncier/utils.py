@@ -6,6 +6,8 @@ import plotly.express as px
 import geopandas as gpd
 from urllib.parse import urljoin
 
+from tqdm import tqdm
+
 from .config import get_param
 
 from .exceptions import ApiDFError
@@ -39,7 +41,7 @@ class Resultat:
         ) = Resultat.process_geo_params(**geo_params)
         self.params = Resultat.process_filter_params(**kwargs)
 
-    def get_dataframe(self):
+    def get_dataframe(self, no_param_code=False):
         if self.lon_lat:
             lon = self.lon_lat[0]
             lat = self.lon_lat[1]
@@ -56,13 +58,19 @@ class Resultat:
         if self.code_insee:
             datas = []
             for code in self.code_insee:
-                url = f"""{self.url}?code_insee={code}&page_size=500"""
+                if not no_param_code:
+                    url = f"""{self.url}?code_insee={code}&page_size=500"""
+                else:
+                    url = f"""{self.url}{code}/"""
                 data = get_all_data(url, self.params, use_token=self.use_token)
                 datas.append(data)
         if self.coddep:
             datas = []
             for code in self.coddep:
-                url = f"""{self.url}?coddep={code}&page_size=500"""
+                if not no_param_code:
+                    url = f"""{self.url}?coddep={code}&page_size=500"""
+                else:
+                    url = f"""{self.url}{code}/"""
                 data = get_all_data(url, self.params, use_token=self.use_token)
                 datas.append(data)
         data = datas[0] if len(datas) == 1 else pd.concat(datas, ignore_index=True)
@@ -178,11 +186,16 @@ def get_all_geodata(url, params=None, use_token=False):
     data_pages = []
     has_more_pages = True
 
+    pbar = None
     while has_more_pages:
         response = get_api_response(url, params, use_token)
         if len(response["features"]) > 0:
             data_page = gpd.GeoDataFrame.from_features(response)
             data_pages.append(data_page)
+            if not pbar:
+                pbar = tqdm(total=response["count"])
+                pbar.set_description(url)
+            pbar.update(len(response["features"]))
 
         if not response["next"]:
             has_more_pages = False
@@ -200,11 +213,16 @@ def get_all_data(url, params=None, use_token=False):
     data_pages = []
     has_more_pages = True
 
+    pbar = None
     while has_more_pages:
         response = get_api_response(url, params, use_token)
         if len(response["results"]) > 0:
             data_page = pd.DataFrame(response["results"])
             data_pages.append(data_page)
+            if not pbar:
+                pbar = tqdm(total=response["count"])
+                pbar.set_description(url)
+            pbar.update(len(response["results"]))
 
         if not response["next"]:
             has_more_pages = False
