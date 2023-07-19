@@ -15,7 +15,8 @@ Installation
 
 Vous pouvez installer ``apifoncier`` via pip :
 
-.. code-block:: python
+.. code-block:: console
+
     pip install apifoncier
 
 
@@ -26,9 +27,13 @@ Quickstart
 Indicateurs de consommation d’espace (accès libre)
 --------------------------------------------------
 
+Le module permet d'obtenir les indicateurs nationaux de consommation d'espace.
+
 .. code-block:: python
+
     import apifoncier.ind_conso_espace as conso
     df = conso.communes(code_insee=['59350'])
+
 
 Indicateurs de prix (accès libre)
 ----------------------------------

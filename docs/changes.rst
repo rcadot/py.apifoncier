@@ -1,9 +1,15 @@
 Changements
 ===========
 
+0.0.17
+------
+- Reprise des modules
+- Mise en place progressbar
+- Reprise documentation
+
 0.0.11
 ------
-AJout de dvf_opendata
+Ajout de dvf_opendata
 
 0.0.9
 -----

@@ -3,3 +3,5 @@ black
 sphinx
 piccolo_theme
 ghp-import
+nbsphinx
+pandoc

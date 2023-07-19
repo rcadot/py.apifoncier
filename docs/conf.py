@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "apifoncier"
 copyright = "2023, Romain Cadot"
 author = "Romain Cadot"
-release = "0.0.11"
+release = "0.0.17"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -25,6 +25,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
+    "nbsphinx",
 ]
 
 templates_path = ["_templates"]
