@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="apifoncier",
-    version="0.0.18",
+    version="0.0.19",
     description="Mobiliser les données foncières de l'api du Cerema directement avec python",
     packages=find_packages(exclude=["tests"]),
     long_description=long_description,
