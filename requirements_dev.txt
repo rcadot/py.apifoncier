@@ -8,3 +8,5 @@ pandoc
 plotly
 folium
 pandas
+geopandas
+tqdm
