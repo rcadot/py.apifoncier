@@ -183,6 +183,7 @@ class Resultat:
 
 
 def get_all_geodata(url, params=None, use_token=False):
+    progress_bar = get_param("PROGRESS_BAR")
     data_pages = []
     has_more_pages = True
 
@@ -192,10 +193,11 @@ def get_all_geodata(url, params=None, use_token=False):
         if len(response["features"]) > 0:
             data_page = gpd.GeoDataFrame.from_features(response)
             data_pages.append(data_page)
-            if not pbar:
-                pbar = tqdm(total=response["count"])
-                pbar.set_description(url)
-            pbar.update(len(response["features"]))
+            if progress_bar:
+                if not pbar:
+                    pbar = tqdm(total=response["count"])
+                    pbar.set_description(url)
+                pbar.update(len(response["features"]))
 
         if not response["next"]:
             has_more_pages = False
@@ -210,6 +212,7 @@ def get_all_geodata(url, params=None, use_token=False):
 
 
 def get_all_data(url, params=None, use_token=False):
+    progress_bar = get_param("PROGRESS_BAR")
     data_pages = []
     has_more_pages = True
 
@@ -219,10 +222,11 @@ def get_all_data(url, params=None, use_token=False):
         if len(response["results"]) > 0:
             data_page = pd.DataFrame(response["results"])
             data_pages.append(data_page)
-            if not pbar:
-                pbar = tqdm(total=response["count"])
-                pbar.set_description(url)
-            pbar.update(len(response["results"]))
+            if progress_bar:
+                if not pbar:
+                    pbar = tqdm(total=response["count"])
+                    pbar.set_description(url)
+                pbar.update(len(response["results"]))
 
         if not response["next"]:
             has_more_pages = False

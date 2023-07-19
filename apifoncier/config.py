@@ -2,6 +2,7 @@ CONFIG_INIT = {
     "BASE_URL": "https://apidf-preprod.cerema.fr",
     "TOKEN": None,
     "PROXY": None,
+    "PROGRESS_BAR": True,
 }
 CONFIG = CONFIG_INIT.copy()
 

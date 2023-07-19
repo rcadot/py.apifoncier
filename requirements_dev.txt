@@ -7,3 +7,4 @@ nbsphinx
 pandoc
 plotly
 folium
+pandas
