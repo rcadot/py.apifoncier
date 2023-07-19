@@ -15,6 +15,7 @@ Bienvenue sur la documentation du package ``apifoncier``
    ./ind_conso_espace.rst
    ./ind_prix.rst
    ./cartofriches.rst
+   ./dvf_opendata.rst
  
 .. toctree::
    :maxdepth: 2

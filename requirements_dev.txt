@@ -10,3 +10,4 @@ folium
 pandas
 geopandas
 tqdm
+ipykernel
