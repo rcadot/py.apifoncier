@@ -21,6 +21,7 @@ release = "0.0.17"
 
 extensions = [
     "sphinx.ext.githubpages",
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",

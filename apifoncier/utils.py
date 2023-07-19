@@ -154,7 +154,7 @@ class Resultat:
                         raise ValueError(
                             "Le paramètre lon_lat doit être une liste de 2 floats."
                         )
-                    values[keyword] = value
+                    values[keyword] = [str(elt) for elt in value]
                     break
                 if keyword == "in_bbox":
                     # Vérification que in_bbox est une liste de 4 floats
@@ -166,7 +166,7 @@ class Resultat:
                         raise ValueError(
                             "Le paramètre in_bbox doit être une liste de 4 floats."
                         )
-                    values[keyword] = value
+                    values[keyword] = [str(elt) for elt in value]
                     break
                 elif keyword == "code_insee" or keyword == "coddep":
                     if isinstance(value, str):

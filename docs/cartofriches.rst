@@ -1,34 +1,36 @@
 Cartofriches
-===================
+============
 
+Présentation
+------------
 
-On peut accéder aux friches, soit par département, commune.
+``apifoncier`` permet d'interroger librement les **données des friches** produites par le Cerema. 
+Plus de détails sur `Cartofriches <https://cartofriches.cerema.fr/>`_
 
-Pour un ou plusieurs département :
+Les données proposées sont disponibles sous forme de dataframe ou geodataframe, accessible soit via le
+code insee de la commune, du département ou une emprise geographique.
 
-.. code-block:: python
+Import
+------
 
-    apifoncier.cartofriches.friches(coddep=['62','59'])
-
-
-Pour une ou plusieurs communes :
-
-.. code-block:: python
-
-    apifoncier.cartofriches.friches(code_insee=['59002','59008'])
-
- 
-On peut également accéder aux objets géographiques associés.
+Pour importer le module correspondant :
 
 .. code-block:: python
-    
-    apifoncier.cartofriches.geofriches(code_insee='59350')
 
-Retrouvez toutes les fonctions liées aux données de 
-cartofriches :
+    import apifoncier.cartofriches as cartofriches
+
+Description des fonctions
+-------------------------
 
 .. autofunction:: apifoncier.cartofriches.friches
 
 .. autofunction:: apifoncier.cartofriches.geofriches
 
 .. autofunction:: apifoncier.cartofriches.friche
+
+
+Exemples
+--------
+
+La rubriques Exemples présente des usages de ce module :
+:ref:`Exemples sur Cartofriches`

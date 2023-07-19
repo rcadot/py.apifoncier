@@ -1,28 +1,45 @@
-Consommation ENAF
-=================
+Indicateurs de consommation d'espace
+=====================================
 
+Présentation
+------------
 
-Les données sont disponibles à deux échelles : communes et départements.
+``apifoncier`` permet d'interroger librement les **données de consommation d'espace annuelles** produites par le Cerema 
+et la DGALN. Plus de détails sur le `portail de l'artificialisation <https://artificialisation.developpement-durable.gouv.fr/>`_
 
-En indiquant le code INSEE d'une commune au format ``string``, on obtient un dataframe des consommations.
+Les données proposées sont disponibles à **deux échelles** : communes et départements.
 
+Import
+------
 
-La fonction ``apifoncier.ind_conso_espace.communes_g()`` permet de générer un graphique ``plotly``` de la consommation sur la commune de son choix.
+Pour importer le module correspondant :
 
 .. code-block:: python
-    
-    apifoncier.ind_conso_espace.communes_g(['97233','97234'],total=False)
 
+    import apifoncier.ind_conso_espace as conso_enaf 
 
+Description des fonctions
+-------------------------
 
+Pour les communes
+^^^^^^^^^^^^^^^^^
 
-Retrouvez toutes les fonctions liées aux données de consommation d'ENAF :
-
+L'accès aux indicateurs annuels communaux s'effectue via les codes INSEE des communes, 
+en limitant éventuellement la période :
 
 .. autofunction:: apifoncier.ind_conso_espace.communes
 
-.. autofonction:: apifoncier.ind_conso_espace.communes_g
 
-.. autofunction:: apifoncier.ind_conso_espace.dep
+Pour les départements
+^^^^^^^^^^^^^^^^^^^^^
 
-.. autofonction:: apifoncier.ind_conso_espace.dep_g
+L'accès aux indicateurs annuels départementaux s'effectue via les codes INSEE des départements, 
+en limitant éventuellement la période :
+
+.. autofunction:: apifoncier.ind_conso_espace.departements
+
+Exemples
+--------
+
+La rubriques Exemples présente des usages de ce module :
+:ref:`Exemples sur Consommation d'espace`

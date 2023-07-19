@@ -19,17 +19,31 @@ def friches(
 
     Args:
         **code_insee (str or list, optional)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
+
         **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
+
         **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max]. Defaults to None.
+
         **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des friches renvoyées [longitude, latitude]. Defaults to None.
+
         **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
+
         **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
+
         **surface_max (int, optional)**: Surface maximale des friches. Defaults to None.
+
         **surface_min (int, optional)**: Surface minimale des friches. Defaults to None.
+
         **urba_zone_type (str, optional)**: Type de zonage. Defaults to None.
 
     Returns:
         dataframe: données sur les friches issues de Cartofriches
+
+    Examples:
+        >>> import apifoncier.cartofriches as cartofriches
+        >>> cartofriches.friches(code_insee="59350")
+        >>> cartofriches.friches(coddep="59")
+        >>> cartofriches.friches(in_bbox=[3, 50, 4, 51])
     """
     result = utils.Resultat("/cartofriches/friches/", **locals())
     df = result.get_dataframe()
@@ -51,25 +65,42 @@ def geofriches(
 
     Args:
         **code_insee (str or list, optional)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
+
         **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
+
         **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max]. Defaults to None.
+
         **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des friches renvoyées [longitude, latitude]. Defaults to None.
+
         **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
+
         **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
+
         **surface_max (int, optional)**: Surface maximale des friches. Defaults to None.
+
         **surface_min (int, optional)**: Surface minimale des friches. Defaults to None.
+
         **urba_zone_type (str, optional)**: Type de zonage. Defaults to None.
 
     Returns:
         geodataframe: données sur les friches issues de Cartofriches avec les contours géométriques
+
+    Examples:
+        >>> import apifoncier.cartofriches as cartofriches
+        >>> cartofriches.geofriches(code_insee="59350")
+        >>> cartofriches.geofriches(coddep="59")
+        >>> cartofriches.geofriches(in_bbox=[3, 50, 4, 51])
     """
     result = utils.Resultat("/cartofriches/geofriches/", **locals())
     gdf = result.get_geodataframe()
     return gdf
 
 
-def friche(site_id=None):
+def friche(site_id):
     """Renvoi la friche correpondant au site_id (str)
+
+    Args:
+        **site_id (str, required)**: Identifiant du site.
 
     Returns:
         dataframe: donnée sur la friche issue de Cartofriches

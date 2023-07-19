@@ -5,3 +5,5 @@ piccolo_theme
 ghp-import
 nbsphinx
 pandoc
+plotly
+folium
