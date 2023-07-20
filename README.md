@@ -2,8 +2,8 @@
 # Présentation du module
 
 **apifoncier** est un module Python qui propose 
-une boîte à outils pour interagir plus facilement avec (l'API
-Données foncières du Cerema)[https://apidf-preprod.cerema.fr/].
+une boîte à outils pour interagir plus facilement avec [l'API
+Données foncières du Cerema](https://apidf-preprod.cerema.fr/).
 
 Il permet d'interroger facilement les différentes bases de données 
 foncières produites par le Cerema et la DGALN directement en Python. 
