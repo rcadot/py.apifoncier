@@ -57,7 +57,7 @@ ou un geodataframe (``geopandas``) via la fonction adéquate :
     df = dvf.mutations(code_insee='59350')
     
     # avec les geometries
-    gdf = dvf.geomutations(in_bbox=[])
+    gdf = dvf.geomutations(in_bbox=[3, 50, 3.01, 50.01])
 
 .. code-block:: python
 
@@ -97,7 +97,7 @@ Une fois, le jeton configuré, les fonctions accessibles via le token sont déso
     df = ff.parcelles(code_insee='59646')
     
     # sur une commune avec les contours géométriques
-    gdf = ff.geoparcelles(in_bbox=[])
+    gdf = ff.geoparcelles(in_bbox=[3, 50, 3.01, 50.01])
 
 
 .. code-block:: python
@@ -109,7 +109,7 @@ Une fois, le jeton configuré, les fonctions accessibles via le token sont déso
     df = dv3f.mutations(code_insee='59646')
     
     # sur une commune avec les contours géométriques
-    gdf = dv3f.geomutations(in_bbox=[])
+    gdf = dv3f.geomutations(in_bbox=[3, 50, 3.01, 50.01])
 
 Ressources
 ============
