@@ -191,7 +191,9 @@ def get_all_geodata(url, params=None, use_token=False):
     while has_more_pages:
         response = get_api_response(url, params, use_token)
         if len(response["features"]) > 0:
-            data_page = gpd.GeoDataFrame.from_features(response)
+            data_page = gpd.GeoDataFrame.from_features(response).set_index(
+                pd.json_normalize(response["features"])["id"].values
+            )  ## On ajout les identifiants en index
             data_pages.append(data_page)
             if progress_bar:
                 if not pbar:
@@ -205,7 +207,11 @@ def get_all_geodata(url, params=None, use_token=False):
             url = response["next"]
 
     if data_pages:
-        data = gpd.GeoDataFrame(pd.concat(data_pages, ignore_index=True))
+        data = gpd.GeoDataFrame(
+            pd.concat(
+                data_pages,
+            )
+        )  # ignore_index=True))
         return data
     else:
         return None

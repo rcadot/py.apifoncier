@@ -51,10 +51,10 @@ gdf = dvf.geomutations(in_bbox=[3, 50, 3.01, 50.01])
 # Ressources
 
 Pour retrouver toutes les informations sur les données foncières :
-[datafoncier.cerema.fr](datafoncier.cerema.fr)
+[datafoncier.cerema.fr](https://datafoncier.cerema.fr)
 
 Dictionnaire et documentation sur toutes les variables :
-[doc-datafoncier.cerema.fr](doc-datafoncier.cerema.fr)
+[doc-datafoncier.cerema.fr](http://doc-datafoncier.cerema.fr)
 
 [Pour en savoir plus sur l’API données foncières du
 cerema.](https://apidf-preprod.cerema.fr/swagger/)
