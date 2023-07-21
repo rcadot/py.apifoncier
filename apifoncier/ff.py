@@ -24,6 +24,7 @@ def parcelles(
     dcntpa_min=None,
     dcntpa_max=None,
     idcomtxt=None,
+    idpar=None,
     jannathmin_min=None,
     jannathmin_max=None,
     nlocal_min=None,
@@ -71,6 +72,8 @@ def parcelles(
         **dcntpa_max (int, optional)**: Surface maximale de la parcelle (m2). Defaults to None.
 
         **idcomtxt (str, optional)**: Chaine de caractères contenue dans le libellé de la commune. Defaults to None.
+
+        **idpar (str, optional)**: Identifiants de parcelle (séparés par une virgule). Defaults to None.
 
         **jannathmin_min (int, optional)**: Année minimale de construction du local le plus ancien. Defaults to None.
 
@@ -124,6 +127,7 @@ def geoparcelles(
     dcntpa_min=None,
     dcntpa_max=None,
     idcomtxt=None,
+    idpar=None,
     jannathmin_min=None,
     jannathmin_max=None,
     nlocal_min=None,
@@ -171,6 +175,8 @@ def geoparcelles(
         **dcntpa_max (int, optional)**: Surface maximale de la parcelle (m2). Defaults to None.
 
         **idcomtxt (str, optional)**: Chaine de caractères contenue dans le libellé de la commune. Defaults to None.
+
+        **idpar (str, optional)**: Identifiants de parcelle (séparés par une virgule). Defaults to None.
 
         **jannathmin_min (int, optional)**: Année minimale de construction du local le plus ancien. Defaults to None.
 
@@ -233,6 +239,7 @@ def tups(
     fields=None,
     ordering=None,
     catpro3=None,
+    idtup=None,
     typetup=None,
 ):
     """Retourne les tup issues des Fichiers fonciers pour le périmètre demandé sous forme d'un dataframe
@@ -253,6 +260,8 @@ def tups(
         **catpro3 (str, optional)**: Chaîne(s) de caractères contenue dans le code de catégorie de
           propriétaire (il est possible de ne specifier que les premiers niveaux et
           de séparer par une virgule). Defaults to None.
+
+        **idtup (str, optional)**: Identifiants de tup (séparés par une virgule). Defaults to None.
 
         **typetup (str, optional)**: Type de pdl (type de copropriété). Defaults to None.
 
@@ -276,6 +285,9 @@ def geotups(
     lon_lat=None,
     fields=None,
     ordering=None,
+    catpro3=None,
+    idtup=None,
+    typetup=None,
 ):
     """Retourne les tup issues des Fichiers fonciers pour le périmètre demandé sous forme d'un geodataframe integrant les contours géométriques
 
@@ -295,6 +307,8 @@ def geotups(
         **catpro3 (str, optional)**: Chaîne(s) de caractères contenue dans le code de catégorie de
           propriétaire (il est possible de ne specifier que les premiers niveaux et
           de séparer par une virgule). Defaults to None.
+
+        **idtup (str, optional)**: Identifiants de tup (séparés par une virgule). Defaults to None.
 
         **typetup (str, optional)**: Type de pdl (type de copropriété). Defaults to None.
 
