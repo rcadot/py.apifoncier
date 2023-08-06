@@ -263,15 +263,19 @@ def get_api_response(url, params=None, use_token=False, attempt=1):
             raise TokenNotConfigured()
         HEADERS["Authorization"] = "Token " + token
 
-    response = requests.get(url, params=params, headers=HEADERS, proxies=PROXIES)
-    status_code = response.status_code
-    if status_code != 200:
+    try:
+        response = requests.get(url, params=params, headers=HEADERS, proxies=PROXIES)
+    except Exception as e:
         if attempt < max_attempts:
             return get_api_response(
                 url, params=params, use_token=use_token, attempt=attempt + 1
             )
         else:
-            raise ApiDFError(status_code, response.json()["detail"])
+            raise e
+
+    status_code = response.status_code
+    if status_code != 200:
+        raise ApiDFError(status_code, response.json()["detail"])
 
     return response.json()
 
