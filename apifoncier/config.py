@@ -3,6 +3,7 @@ CONFIG_INIT = {
     "TOKEN": None,
     "PROXY": None,
     "PROGRESS_BAR": True,
+    "MAX_ATTEMPTS": 3,
 }
 CONFIG = CONFIG_INIT.copy()
 

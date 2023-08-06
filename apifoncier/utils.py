@@ -246,7 +246,8 @@ def get_all_data(url, params=None, use_token=False):
         return None
 
 
-def get_api_response(url, params=None, use_token=False):
+def get_api_response(url, params=None, use_token=False, attempt=1):
+    max_attempts = get_param("MAX_ATTEMPTS")
     HEADERS = {
         "Content-Type": "application/json",
     }
@@ -265,7 +266,12 @@ def get_api_response(url, params=None, use_token=False):
     response = requests.get(url, params=params, headers=HEADERS, proxies=PROXIES)
     status_code = response.status_code
     if status_code != 200:
-        raise ApiDFError(status_code, response.json()["detail"])
+        if attempt < max_attempts:
+            return get_api_response(
+                url, params=params, use_token=use_token, attempt=attempt + 1
+            )
+        else:
+            raise ApiDFError(status_code, response.json()["detail"])
 
     return response.json()
 
