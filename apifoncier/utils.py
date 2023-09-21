@@ -42,7 +42,6 @@ class Resultat:
         for keyword, value in self.params.items():
             if isinstance(value, list):
                 self.params[keyword] = ",".join([str(e).strip() for e in value])
-        print(self.params)
 
     def get_dataframe(self, no_param_code=False):
         if self.lon_lat:
@@ -217,7 +216,7 @@ def get_all_geodata(url, params=None, use_token=False):
         )  # ignore_index=True))
         return data
     else:
-        return pd.DataFrame()
+        return gpd.GeoDataFrame()
 
 
 def get_all_data(url, params=None, use_token=False):

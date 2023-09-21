@@ -368,11 +368,11 @@ def locaux(
 
         **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
 
-        **catpro3 (str, optional)**: Chaîne(s) de caractères contenue dans le code de catégorie de
+        **catpro3 (str or list, optional)**: Chaîne(s) de caractères contenue dans le code de catégorie de
           propriétaire (il est possible de ne specifier que les premiers niveaux et
           de séparer par une virgule). Defaults to None.
 
-        **dteloc (str, optional)**: Type(s) de local (il est possible de spécifier plusieurs types
+        **dteloc (str or list, optional)**: Type(s) de local (il est possible de spécifier plusieurs types
           et de séparer par une virgule). Defaults to None.
 
         **idpar (str, optional)**: Identifiant de parcelle. Defaults to None.
@@ -452,7 +452,7 @@ def proprios(
 
         **idprocpte (str, optional)**: Identifiant de compte communal. Defaults to None.
 
-        **locprop (str_, optional)**:Localisation généralisée du propriétaire recevant la Taxe Foncière. Defaults to None.
+        **locprop (str, optional)**:Localisation généralisée du propriétaire recevant la Taxe Foncière. Defaults to None.
 
         **typedroit (str, optional)**: Type de droit : propriétaire ou gestionnaire. Defaults to None.
 
