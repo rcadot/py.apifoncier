@@ -45,9 +45,9 @@ def parcelles(
 
         **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
 
-        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max]. Defaults to None.
+        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max] - Maximum 0.02 deg x 0.02 deg. Defaults to None.
 
-        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des friches renvoyées [longitude, latitude]. Defaults to None.
+        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des parcelles renvoyées [longitude, latitude]. Defaults to None.
 
         **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
 
@@ -148,9 +148,9 @@ def geoparcelles(
 
         **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
 
-        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max]. Defaults to None.
+        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max] - Maximum 0.02 deg x 0.02 deg. Defaults to None.
 
-        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des friches renvoyées [longitude, latitude]. Defaults to None.
+        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des parcelles renvoyées [longitude, latitude]. Defaults to None.
 
         **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
 
@@ -224,7 +224,7 @@ def parcelle(idpar=None):
     base_url = get_param("BASE_URL")
     url = f"""{base_url}/ff/parcelles/{idpar}/"""
     response = utils.get_api_response(url, use_token=True)
-    return pd.DataFrame.from_dict(response)
+    return pd.DataFrame.from_dict([response])
 
 
 ########################################################################
@@ -249,9 +249,9 @@ def tups(
 
         **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
 
-        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max]. Defaults to None.
+        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max] - Maximum 0.02 deg x 0.02 deg. Defaults to None.
 
-        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des friches renvoyées [longitude, latitude]. Defaults to None.
+        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des tup renvoyées [longitude, latitude]. Defaults to None.
 
         **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
 
@@ -296,9 +296,9 @@ def geotups(
 
         **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
 
-        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max]. Defaults to None.
+        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max] - Maximum 0.02 deg x 0.02 deg. Defaults to None.
 
-        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des friches renvoyées [longitude, latitude]. Defaults to None.
+        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des tup renvoyées [longitude, latitude]. Defaults to None.
 
         **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
 
@@ -335,7 +335,7 @@ def tup(idtup=None):
     base_url = get_param("BASE_URL")
     url = f"""{base_url}/ff/parcelles/{idtup}/"""
     response = utils.get_api_response(url, use_token=True)
-    return pd.DataFrame.from_dict(response)
+    return pd.DataFrame.from_dict([response])
 
 
 ########################################################################
@@ -345,8 +345,6 @@ def tup(idtup=None):
 
 def locaux(
     code_insee=None,
-    in_bbox=None,
-    lon_lat=None,
     fields=None,
     ordering=None,
     catpro3=None,
@@ -365,12 +363,6 @@ def locaux(
 
     Args:
         **code_insee (str or list, optional)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
-
-        **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
-
-        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max]. Defaults to None.
-
-        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des friches renvoyées [longitude, latitude]. Defaults to None.
 
         **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
 
@@ -421,7 +413,7 @@ def local(idlocal=None):
     base_url = get_param("BASE_URL")
     url = f"""{base_url}/ff/locaux/{idlocal}/"""
     response = utils.get_api_response(url, use_token=True)
-    return pd.DataFrame.from_dict(response)
+    return pd.DataFrame.from_dict([response])
 
 
 ########################################################################
@@ -431,8 +423,6 @@ def local(idlocal=None):
 
 def proprios(
     code_insee=None,
-    in_bbox=None,
-    lon_lat=None,
     fields=None,
     ordering=None,
     catpro3=None,
@@ -446,12 +436,6 @@ def proprios(
 
     Args:
         **code_insee (str or list, optional)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
-
-        **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
-
-        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max]. Defaults to None.
-
-        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des friches renvoyées [longitude, latitude]. Defaults to None.
 
         **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
 
@@ -489,4 +473,4 @@ def proprio(idprodroit=None):
     base_url = get_param("BASE_URL")
     url = f"""{base_url}/ff/proprios/{idprodroit}/"""
     response = utils.get_api_response(url, use_token=True)
-    return pd.DataFrame.from_dict(response)
+    return pd.DataFrame.from_dict([response])

@@ -31,9 +31,7 @@ def mutations(
     Args:
         **code_insee (str or list, optional)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
 
-        **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
-
-        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max]. Defaults to None.
+        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max] - Maximum 0.02 deg x 0.02 deg. Defaults to None.
 
         **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des friches renvoyées [longitude, latitude]. Defaults to None.
 
@@ -106,9 +104,7 @@ def geomutations(
     Args:
         **code_insee (str or list, optional)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
 
-        **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
-
-        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max]. Defaults to None.
+        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max] - Maximum 0.02 deg x 0.02 deg. Defaults to None.
 
         **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des friches renvoyées [longitude, latitude]. Defaults to None.
 
@@ -163,4 +159,4 @@ def mutation(idmutation=None):
     base_url = get_param("BASE_URL")
     url = f"""{base_url}/dv3f/mutations/{idmutation}/"""
     response = utils.get_api_response(url, use_token=True)
-    return pd.DataFrame.from_dict(response)
+    return pd.DataFrame.from_dict([response])

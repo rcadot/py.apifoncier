@@ -2,8 +2,6 @@ import warnings
 import requests
 import pandas as pd
 import geopandas as gpd
-import plotly.express as px
-import geopandas as gpd
 from urllib.parse import urljoin
 
 from tqdm import tqdm
@@ -40,6 +38,11 @@ class Resultat:
             self.coddep,
         ) = Resultat.process_geo_params(**geo_params)
         self.params = Resultat.process_filter_params(**kwargs)
+        ### On transforme les paramètres de type list en chaine de caractère concaténée
+        for keyword, value in self.params.items():
+            if isinstance(value, list):
+                self.params[keyword] = ",".join([str(e).strip() for e in value])
+        print(self.params)
 
     def get_dataframe(self, no_param_code=False):
         if self.lon_lat:
@@ -145,7 +148,7 @@ class Resultat:
                 value = kwargs[keyword]
 
                 if keyword == "lon_lat":
-                    # Vérification que in_bbox est une liste de 4 floats
+                    # Vérification que lon_lat est une liste de 2 floats
                     if (
                         not isinstance(value, list)
                         or len(value) != 2
@@ -154,7 +157,7 @@ class Resultat:
                         raise ValueError(
                             "Le paramètre lon_lat doit être une liste de 2 floats."
                         )
-                    values[keyword] = [str(elt) for elt in value]
+                    values[keyword] = value
                     break
                 if keyword == "in_bbox":
                     # Vérification que in_bbox est une liste de 4 floats
@@ -214,7 +217,7 @@ def get_all_geodata(url, params=None, use_token=False):
         )  # ignore_index=True))
         return data
     else:
-        return None
+        return pd.DataFrame()
 
 
 def get_all_data(url, params=None, use_token=False):
@@ -243,7 +246,7 @@ def get_all_data(url, params=None, use_token=False):
         data = pd.concat(data_pages)
         return data
     else:
-        return None
+        return pd.DataFrame()
 
 
 def get_api_response(url, params=None, use_token=False, attempt=1):

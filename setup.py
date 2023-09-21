@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="apifoncier",
-    version="0.0.23",
+    version="0.0.24",
     description="Mobiliser les données foncières de l'api du Cerema directement avec python",
     packages=find_packages(exclude=["tests"]),
     long_description=long_description,
@@ -20,7 +20,7 @@ setup(
         "Operating System :: OS Independent",
     ],
     keywords=["api", "foncier", "cerema", "dv3f", "friches", "artificialisation"],
-    install_requires=["pandas", "requests", "plotly", "geopandas", "tqdm"],
+    install_requires=["pandas", "requests", "geopandas", "tqdm"],
     extras_require={"dev": ["pytest"]},
     python_requires=">=3.9",
 )

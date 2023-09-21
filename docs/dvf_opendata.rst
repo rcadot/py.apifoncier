@@ -8,7 +8,7 @@ Présentation
 Plus de détails sur `DVF+ <https://datafoncier.cerema.fr/donnees/autres-donnees-foncieres/dvfplus-open-data>`_
 
 Les données proposées sont disponibles sous forme de dataframe ou geodataframe, accessible soit via le
-code insee de la commune, du département ou une emprise geographique.
+code insee de la commune ou une emprise geographique.
 
 Import
 ------

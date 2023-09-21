@@ -1,5 +1,4 @@
 requests
 pandas
 geopandas
-plotly
 tqdm

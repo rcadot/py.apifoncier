@@ -109,4 +109,4 @@ def friche(site_id):
     base_url = get_param("BASE_URL")
     url = f"""{base_url}/cartofriches/friches/{site_id}/"""
     response = utils.get_api_response(url)
-    return pd.DataFrame.from_dict(response)
+    return pd.DataFrame.from_dict([response])

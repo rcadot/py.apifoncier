@@ -9,7 +9,7 @@ sur les marchés fonciers et immobiliers du Cerema.
 Plus de détails sur `DV3F <https://datafoncier.cerema.fr/dv3f>`_
 
 Les données proposées sont disponibles sous forme de dataframe ou geodataframe, accessible soit via le
-code insee de la commune, du département ou une emprise geographique.
+code insee de la commune ou une emprise geographique.
 
 .. note:: 
     
