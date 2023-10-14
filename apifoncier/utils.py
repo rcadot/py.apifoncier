@@ -250,6 +250,7 @@ def get_all_data(url, params=None, use_token=False):
 
 def get_api_response(url, params=None, use_token=False, attempt=1):
     max_attempts = get_param("MAX_ATTEMPTS")
+    timeout_value = get_param("TIMEOUT")
     HEADERS = {
         "Content-Type": "application/json",
     }
@@ -266,7 +267,9 @@ def get_api_response(url, params=None, use_token=False, attempt=1):
         HEADERS["Authorization"] = "Token " + token
 
     try:
-        response = requests.get(url, params=params, headers=HEADERS, proxies=PROXIES)
+        response = requests.get(
+            url, params=params, headers=HEADERS, proxies=PROXIES, timeout=timeout_value
+        )
     except Exception as e:
         if attempt < max_attempts:
             return get_api_response(

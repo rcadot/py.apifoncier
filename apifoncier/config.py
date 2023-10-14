@@ -4,6 +4,7 @@ CONFIG_INIT = {
     "PROXY": None,
     "PROGRESS_BAR": True,
     "MAX_ATTEMPTS": 3,
+    "TIMEOUT": 15,
 }
 CONFIG = CONFIG_INIT.copy()
 
