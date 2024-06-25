@@ -1,6 +1,10 @@
 Changements
 ===========
 
+0.0.27
+------
+- Integration indicateurs de marché
+
 0.0.17
 ------
 - Reprise des modules

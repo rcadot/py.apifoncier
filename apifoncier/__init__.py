@@ -5,3 +5,4 @@ import apifoncier.dvf_opendata
 import apifoncier.ff
 import apifoncier.ind_conso_espace
 import apifoncier.ind_prix
+import apifoncier.ind_marche

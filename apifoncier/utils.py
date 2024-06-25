@@ -28,6 +28,7 @@ class Resultat:
             lon_lat=kwargs.pop("lon_lat", None),
             in_bbox=kwargs.pop("in_bbox", None),
             code_insee=kwargs.pop("code_insee", None),
+            code=kwargs.pop("code", None),
             coddep=kwargs.pop("coddep", None),
         )
 
@@ -35,6 +36,7 @@ class Resultat:
             self.lon_lat,
             self.in_bbox,
             self.code_insee,
+            self.code,
             self.coddep,
         ) = Resultat.process_geo_params(**geo_params)
         self.params = Resultat.process_filter_params(**kwargs)
@@ -66,6 +68,9 @@ class Resultat:
                     url = f"""{self.url}{code}/"""
                 data = get_all_data(url, self.params, use_token=self.use_token)
                 datas.append(data)
+        if self.code:
+            url = f"""{self.url}?code={",".join(self.code)}"""
+            return get_all_data(url, self.params, use_token=self.use_token)
         if self.coddep:
             datas = []
             for code in self.coddep:
@@ -121,11 +126,11 @@ class Resultat:
 
     @staticmethod
     def process_geo_params(**kwargs):
-        keyword_priority = ["lon_lat", "in_bbox", "code_insee", "coddep"]
+        keyword_priority = ["lon_lat", "in_bbox", "code_insee", "code", "coddep"]
         # Vérification de l'obligation de préciser au moins un paramètre
         if not any(keyword in kwargs for keyword in keyword_priority):
             raise ValueError(
-                "Veuillez préciser au moins un paramètre parmi code_insee, in_bbox, lonlat et coddep."
+                "Veuillez préciser au moins un paramètre parmi code_insee, code, in_bbox, lonlat et coddep."
             )
 
         # Vérification si plusieurs mots-clés ont été utilisés
@@ -170,7 +175,7 @@ class Resultat:
                         )
                     values[keyword] = [str(elt) for elt in value]
                     break
-                elif keyword == "code_insee" or keyword == "coddep":
+                elif keyword in ("code_insee", "code", "coddep"):
                     if isinstance(value, str):
                         value = [value]
                     values[keyword] = value

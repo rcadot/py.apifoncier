@@ -1,5 +1,5 @@
-Indicateurs de prix 
-====================
+Indicateurs de prix (déprécié) 
+==============================
 
 Présentation
 ------------
