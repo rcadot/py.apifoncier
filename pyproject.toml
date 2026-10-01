@@ -1,0 +1,120 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "apifoncier"
+dynamic = ["version"]
+description = "Mobiliser les données foncières de l'API du Cerema directement avec Python"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Romain Cadot", email = "romain.cadot@cerema.fr" }]
+keywords = ["api", "foncier", "cerema", "dv3f", "dvf", "friches", "artificialisation"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: French",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Typing :: Typed",
+]
+dependencies = [
+    "geopandas>=0.12",
+    "pandas>=1.5",
+    "requests>=2.28",
+    "tqdm>=4.64",
+    "urllib3>=1.26",
+]
+
+[project.optional-dependencies]
+polars = ["polars>=0.20"]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.10",
+    "pandas-stubs",
+    "polars>=0.20",
+    "pytest>=7",
+    "pytest-cov>=4",
+    "responses>=0.23",
+    "ruff>=0.5",
+    "types-requests",
+    "types-tqdm",
+]
+docs = [
+    "ipykernel",
+    "nbsphinx",
+    "piccolo-theme",
+    "sphinx>=7",
+]
+
+[project.urls]
+Documentation = "https://rcadot.github.io/py.apifoncier/"
+Source = "https://github.com/rcadot/py.apifoncier"
+Issues = "https://github.com/rcadot/py.apifoncier/issues"
+Changelog = "https://rcadot.github.io/py.apifoncier/changes.html"
+
+[tool.hatch.version]
+path = "apifoncier/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["apifoncier", "tests", "README.md", "CHANGES", "LICENSE"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["apifoncier"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "network: test interrogeant l'API réelle (désactivé par défaut, activer avec --run-network)",
+]
+
+[tool.coverage.run]
+source = ["apifoncier"]
+branch = true
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+extend-exclude = ["docs/examples"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "RUF", "D"]
+ignore = [
+    "D203",   # incompatible avec D211
+    "D213",   # incompatible avec D212
+    "E501",   # longueur gérée par ruff format ; docstrings tolérées
+    "UP006",  # typing.List etc. conservés pour Python 3.9 et la documentation
+    "UP007",
+    "UP035",
+    "UP045",
+    "RUF001", # typographie française (apostrophes, espaces insécables)
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "D", "E501"]
+"docs/**" = ["D", "S"]
+"apifoncier/__init__.py" = ["E402"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+python_version = "3.10"
+packages = ["apifoncier"]
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+check_untyped_defs = true
