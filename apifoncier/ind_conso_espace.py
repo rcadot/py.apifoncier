@@ -1,68 +1,69 @@
-from . import utils
+"""Indicateurs annuels de consommation d'espaces naturels, agricoles et forestiers (accès libre).
+
+Endpoints interrogés :
+
+* ``/indicateurs/conso_espace/communes/<code_insee>/`` ;
+* ``/indicateurs/conso_espace/departements/<coddep>/``.
+"""
+
+from __future__ import annotations
+
+from typing import Optional, Union
+
+from ._query import Codes, Table, fetch
 
 
 def communes(
-    code_insee=None,
-    ordering=None,
-    annee=None,
-    annee_min=None,
-    annee_max=None,
-):
-    """Retourne les indicateurs annuels de consommation d'espace communaux
+    code_insee: Codes = None,
+    ordering: Optional[str] = None,
+    annee: Optional[Union[int, str]] = None,
+    annee_min: Optional[Union[int, str]] = None,
+    annee_max: Optional[Union[int, str]] = None,
+) -> Table:
+    """Retourne les indicateurs annuels de consommation d'espace des communes.
 
     Args:
-        **code_insee (str or list, required)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **annee_min (str, optional)**: Année minimale. Defaults to None.
-
-        **annee_max(str, optional)**: Année maximale. Defaults to None.
-
-        **annee (str, optional)**: Année. Defaults to None.
+        code_insee: Code(s) INSEE communaux ou d'arrondissements municipaux (requis).
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        annee: Année.
+        annee_min: Année minimale (incluse).
+        annee_max: Année maximale (incluse).
 
     Returns:
-        dataframe: données sur la consomation d'espace
+        Un tableau des indicateurs (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).
 
-    Examples :
-        >>> from apifoncier.ind_conso_espace as conso_enaf
+    Examples:
+        >>> import apifoncier.ind_conso_espace as conso_enaf
         >>> conso_enaf.communes(code_insee="59350")
-        >>> conso_enaf.communes(code_insee=["59350", "62041"], annee_min="2015")
+        >>> conso_enaf.communes(code_insee=["59350", "62041"], annee_min=2015)
     """
-
-    result = utils.Resultat("/indicateurs/conso_espace/communes/", **locals())
-    df = result.get_dataframe(no_param_code=True)
-    return df
+    params = dict(locals())
+    return fetch("/indicateurs/conso_espace/communes/", params, path_code=True)
 
 
 def departements(
-    coddep=None,
-    ordering=None,
-    annee=None,
-    annee_min=None,
-    annee_max=None,
-):
-    """Retourne les indicateurs annuels de consommation d'espace departementaux
+    coddep: Codes = None,
+    ordering: Optional[str] = None,
+    annee: Optional[Union[int, str]] = None,
+    annee_min: Optional[Union[int, str]] = None,
+    annee_max: Optional[Union[int, str]] = None,
+) -> Table:
+    """Retourne les indicateurs annuels de consommation d'espace des départements.
 
     Args:
-        **coddep (str or list, required)**: Codes INSEE departementaux. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **annee_min (str, optional)**: Année minimale. Defaults to None.
-
-        **annee_max(str, optional)**: Année maximale. Defaults to None.
-
-        **annee (str, optional)**: Année. Defaults to None.
+        coddep: Code(s) INSEE départementaux (requis).
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        annee: Année.
+        annee_min: Année minimale (incluse).
+        annee_max: Année maximale (incluse).
 
     Returns:
-        dataframe: données sur la consomation d'espace
+        Un tableau des indicateurs (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).
 
-    Examples :
-        >>> from apifoncier.ind_conso_espace as conso_enaf
+    Examples:
+        >>> import apifoncier.ind_conso_espace as conso_enaf
         >>> conso_enaf.departements(coddep="59")
-        >>> conso_enaf.departements(coddep=["59", "62"], annee_max="2015")
+        >>> conso_enaf.departements(coddep=["59", "62"], annee_max=2015)
     """
-    result = utils.Resultat("/indicateurs/conso_espace/departements/", **locals())
-    df = result.get_dataframe(no_param_code=True)
-    return df
+    params = dict(locals())
+    return fetch("/indicateurs/conso_espace/departements/", params, path_code=True)

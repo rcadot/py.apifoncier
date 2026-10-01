@@ -1,166 +1,185 @@
-import pandas as pd
-from .config import get_param
+"""Indicateurs de prix issus de DV3F, par échelle géographique (accès libre).
 
-from . import utils
+Endpoints interrogés : ``/indicateurs/dv3f/<echelle>/<periode>/<code>/``, où
+``echelle`` vaut ``aav``, ``communes``, ``departements``, ``epci`` ou ``regions``
+et ``periode`` vaut ``annuel`` ou ``triennal``.
+
+Le module :mod:`apifoncier.ind_marche` propose des indicateurs plus complets
+(prix et volumes, activité, accessibilité, valorisation).
+"""
+
+from __future__ import annotations
+
+from typing import Optional, Union
+
+from ._query import Codes, Table, fetch
+from .exceptions import ValidationError
+
+PERIODES = ("annuel", "triennal")
+
+
+def _check_periode(periode: str) -> str:
+    """Contrôle la période demandée.
+
+    Args:
+        periode: ``"annuel"`` ou ``"triennal"``.
+
+    Returns:
+        La période contrôlée.
+
+    Raises:
+        ValidationError: Si la période n'est pas reconnue.
+    """
+    if periode not in PERIODES:
+        raise ValidationError(
+            "Le paramètre periode doit valoir 'annuel' ou 'triennal'."
+        )
+    return periode
+
+
+def _fetch_prix(
+    echelle: str,
+    code_param: str,
+    codes: Codes,
+    ordering: Optional[str],
+    annee: Optional[Union[int, str]],
+    periode: str,
+) -> Table:
+    """Interroge l'endpoint de prix d'une échelle géographique.
+
+    Args:
+        echelle: Segment d'URL de l'échelle (``communes``, ``aav``...).
+        code_param: Nom du paramètre de code exposé à l'utilisateur.
+        codes: Code(s) géographique(s).
+        ordering: Champ(s) de tri.
+        annee: Année.
+        periode: ``"annuel"`` ou ``"triennal"``.
+
+    Returns:
+        Un tableau des indicateurs de prix.
+    """
+    endpoint = f"/indicateurs/dv3f/{echelle}/{_check_periode(periode)}/"
+    params = {code_param: codes, "ordering": ordering, "annee": annee}
+    return fetch(endpoint, params, path_code=True)
 
 
 def aav(
-    code_insee=None,
-    ordering=None,
-    annee=None,
-    periode="annuel",
-):
-    """Retourne les indicateurs annuels ou triennaux de prix à l'aire d'attraction de la ville
+    code_insee: Codes = None,
+    ordering: Optional[str] = None,
+    annee: Optional[Union[int, str]] = None,
+    periode: str = "annuel",
+) -> Table:
+    """Retourne les indicateurs annuels ou triennaux de prix des aires d'attraction des villes.
 
     Args:
-        **code_insee (str or list, required)**: Codes INSEE des AAV. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **annee (str, optional)**: Année. Defaults to None.
-
-        **periode (str, optional)**: Prend la valeur "annuel" ou "triennal". Defaults to annuel.
+        code_insee: Code(s) INSEE des AAV (requis).
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        annee: Année.
+        periode: ``"annuel"`` (par défaut) ou ``"triennal"``.
 
     Returns:
-        dataframe: données sur les marchés immobiliers
+        Un tableau des indicateurs de prix.
 
     Examples:
         >>> import apifoncier.ind_prix as prix
         >>> prix.aav(code_insee="001")
-        >>> prix.aav(code_insee=["001", "002"], annee="2020")
         >>> prix.aav(code_insee=["001", "002"], periode="triennal")
     """
-    if not periode in ("annuel", "triennal"):
-        raise ValueError("Le paramètre periode doit valoir 'annuel' ou 'triennal'.")
-    result = utils.Resultat(f"/indicateurs/dv3f/aav/{periode}/", **locals())
-    df = result.get_dataframe(no_param_code=True)
-    return df
+    return _fetch_prix("aav", "code_insee", code_insee, ordering, annee, periode)
 
 
 def communes(
-    code_insee=None,
-    ordering=None,
-    annee=None,
-    periode="annuel",
-):
-    """Retourne les indicateurs annuels ou triennaux de prix à la commune
+    code_insee: Codes = None,
+    ordering: Optional[str] = None,
+    annee: Optional[Union[int, str]] = None,
+    periode: str = "annuel",
+) -> Table:
+    """Retourne les indicateurs annuels ou triennaux de prix des communes.
 
     Args:
-        **code_insee (str or list, required)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **annee (str, optional)**: Année. Defaults to None.
-
-        **periode (str, optional)**: Prend la valeur "annuel" ou "triennal". Defaults to annuel.
+        code_insee: Code(s) INSEE communaux ou d'arrondissements municipaux (requis).
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        annee: Année.
+        periode: ``"annuel"`` (par défaut) ou ``"triennal"``.
 
     Returns:
-        dataframe: données sur les marchés immobiliers
+        Un tableau des indicateurs de prix.
 
     Examples:
         >>> import apifoncier.ind_prix as prix
         >>> prix.communes(code_insee="59350")
-        >>> prix.communes(code_insee=["59350", "59646"], annee="2020")
-        >>> prix.communes(code_insee=["59350", "59646"], periode="triennal")
+        >>> prix.communes(code_insee=["59350", "59646"], annee=2020)
     """
-    if not periode in ("annuel", "triennal"):
-        raise ValueError("Le paramètre periode doit valoir 'annuel' ou 'triennal'.")
-    result = utils.Resultat(f"/indicateurs/dv3f/communes/{periode}/", **locals())
-    df = result.get_dataframe(no_param_code=True)
-    return df
+    return _fetch_prix("communes", "code_insee", code_insee, ordering, annee, periode)
 
 
 def departements(
-    coddep=None,
-    ordering=None,
-    annee=None,
-    periode="annuel",
-):
-    """Retourne les indicateurs annuels ou triennaux de prix à l'échelle du département
+    coddep: Codes = None,
+    ordering: Optional[str] = None,
+    annee: Optional[Union[int, str]] = None,
+    periode: str = "annuel",
+) -> Table:
+    """Retourne les indicateurs annuels ou triennaux de prix des départements.
+
     Args:
-        **coddep (str or list, required)**: Codes des départements. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **annee (str, optional)**: Année. Defaults to None.
-
-        **periode (str, optional)**: Prend la valeur "annuel" ou "triennal". Defaults to annuel.
+        coddep: Code(s) des départements (requis).
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        annee: Année.
+        periode: ``"annuel"`` (par défaut) ou ``"triennal"``.
 
     Returns:
-        dataframe: données sur les marchés immobiliers
+        Un tableau des indicateurs de prix.
 
     Examples:
         >>> import apifoncier.ind_prix as prix
-        >>> prix.departements(coddep="59")
-        >>> prix.departements(coddep=["59", "62"], annee="2020")
         >>> prix.departements(coddep=["59", "62"], periode="triennal")
     """
-    if not periode in ("annuel", "triennal"):
-        raise ValueError("Le paramètre periode doit valoir 'annuel' ou 'triennal'.")
-    result = utils.Resultat(f"/indicateurs/dv3f/departements/{periode}/", **locals())
-    df = result.get_dataframe(no_param_code=True)
-    return df
+    return _fetch_prix("departements", "coddep", coddep, ordering, annee, periode)
 
 
 def epci(
-    code_insee=None,
-    ordering=None,
-    annee=None,
-    periode="annuel",
-):
-    """Retourne les indicateurs annuels ou triennaux de prix à l'EPCI
+    code_insee: Codes = None,
+    ordering: Optional[str] = None,
+    annee: Optional[Union[int, str]] = None,
+    periode: str = "annuel",
+) -> Table:
+    """Retourne les indicateurs annuels ou triennaux de prix des EPCI.
 
     Args:
-        **code_insee (str or list, optional)**: Codes INSEE des EPCI. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **annee (str, optional)**: Année. Defaults to None.
-
-        **periode (str, optional)**: Prend la valeur "annuel" ou "triennal". Defaults to annuel.
+        code_insee: Code(s) SIREN des EPCI (requis).
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        annee: Année.
+        periode: ``"annuel"`` (par défaut) ou ``"triennal"``.
 
     Returns:
-        dataframe: données sur les marchés immobiliers
+        Un tableau des indicateurs de prix.
 
     Examples:
         >>> import apifoncier.ind_prix as prix
         >>> prix.epci(code_insee="200093201")
-        >>> prix.epci(code_insee="200093201", periode="triennal")
     """
-    if not periode in ("annuel", "triennal"):
-        raise ValueError("Le paramètre periode doit valoir 'annuel' ou 'triennal'.")
-    result = utils.Resultat(f"/indicateurs/dv3f/epci/{periode}/", **locals())
-    df = result.get_dataframe(no_param_code=True)
-    return df
+    return _fetch_prix("epci", "code_insee", code_insee, ordering, annee, periode)
 
 
 def regions(
-    code_insee=None,
-    ordering=None,
-    annee=None,
-    periode="annuel",
-):
-    """Retourne les indicateurs annuels ou triennaux de prix à l'échelle de la region
+    code_insee: Codes = None,
+    ordering: Optional[str] = None,
+    annee: Optional[Union[int, str]] = None,
+    periode: str = "annuel",
+) -> Table:
+    """Retourne les indicateurs annuels ou triennaux de prix des régions.
+
     Args:
-        **code_insee (str or list, required)**: Codes des regions. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **annee (str, optional)**: Année. Defaults to None.
-
-        **periode (str, optional)**: Prend la valeur "annuel" ou "triennal". Defaults to annuel.
+        code_insee: Code(s) INSEE des régions (requis).
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        annee: Année.
+        periode: ``"annuel"`` (par défaut) ou ``"triennal"``.
 
     Returns:
-        dataframe: données sur les marchés immobiliers
+        Un tableau des indicateurs de prix.
 
     Examples:
         >>> import apifoncier.ind_prix as prix
-        >>> prix.regions(code_insee="32")
-        >>> prix.regions(code_insee=["32", "11"], annee="2020")
-        >>> prix.regions(code_insee=["32", "11"], periode="triennal")
+        >>> prix.regions(code_insee=["32", "11"], annee=2020)
     """
-    if not periode in ("annuel", "triennal"):
-        raise ValueError("Le paramètre periode doit valoir 'annuel' ou 'triennal'.")
-    result = utils.Resultat(f"/indicateurs/dv3f/regions/{periode}/", **locals())
-    df = result.get_dataframe(no_param_code=True)
-    return df
+    return _fetch_prix("regions", "code_insee", code_insee, ordering, annee, periode)

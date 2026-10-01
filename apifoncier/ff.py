@@ -1,7 +1,50 @@
-import pandas as pd
-from .config import get_param
+"""Fichiers fonciers : parcelles, TUP, locaux et droits de propriété.
 
-from . import utils
+Accès restreint : un jeton est requis (voir :func:`apifoncier.configure`).
+
+Endpoints interrogés :
+
+* ``/ff/parcelles/`` et ``/ff/geoparcelles/`` ; ``/ff/parcelles/<idpar>/`` ;
+* ``/ff/tups/`` et ``/ff/geotups/`` ; ``/ff/tups/<idtup>/`` ;
+* ``/ff/locaux/`` ; ``/ff/locaux/<idlocal>/`` ;
+* ``/ff/proprios/`` ; ``/ff/proprios/<idprodroit>/``.
+"""
+
+from __future__ import annotations
+
+import warnings
+from typing import Any, Dict, Optional
+
+import geopandas as gpd
+
+from ._query import BBox, Codes, Multi, Point, Table, fetch, fetch_one, path_segment
+
+_DEPRECATED_PARAMS = {
+    "jannathmin_min": "jannatmin_min",
+    "jannathmin_max": "jannatmin_max",
+}
+
+
+def _rename_deprecated(params: Dict[str, Any]) -> None:
+    """Remplace les noms de paramètres obsolètes par leur nom correct.
+
+    Les versions antérieures exposaient ``jannathmin_min`` et ``jannathmin_max``,
+    noms que l'API ne reconnaît pas : le filtre était silencieusement ignoré.
+
+    Args:
+        params: Paramètres de l'appel, modifiés sur place.
+    """
+    for old, new in _DEPRECATED_PARAMS.items():
+        value = params.pop(old, None)
+        if value is None:
+            continue
+        warnings.warn(
+            f"Le paramètre {old} est obsolète, utiliser {new}.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        if params.get(new) is None:
+            params[new] = value
 
 
 ########################################################################
@@ -10,221 +53,180 @@ from . import utils
 
 
 def parcelles(
-    code_insee=None,
-    in_bbox=None,
-    lon_lat=None,
-    fields=None,
-    ordering=None,
-    catpro3=None,
-    ctpdl=None,
-    dcntarti_min=None,
-    dcntarti_max=None,
-    dcntnaf_min=None,
-    dcntnaf_max=None,
-    dcntpa_min=None,
-    dcntpa_max=None,
-    idcomtxt=None,
-    idpar=None,
-    jannathmin_min=None,
-    jannathmin_max=None,
-    nlocal_min=None,
-    nlocal_max=None,
-    nlogh_min=None,
-    nlogh_max=None,
-    slocal_min=None,
-    slocal_max=None,
-    sprincp_min=None,
-    sprincp_max=None,
-    stoth_min=None,
-    stoth_max=None,
-):
-    """Retourne les parcelles issues des Fichiers fonciers pour le périmètre demandé sous forme d'un dataframe
+    code_insee: Codes = None,
+    in_bbox: BBox = None,
+    lon_lat: Point = None,
+    fields: Optional[str] = None,
+    ordering: Optional[str] = None,
+    catpro3: Multi = None,
+    ctpdl: Optional[str] = None,
+    dcntarti_min: Optional[float] = None,
+    dcntarti_max: Optional[float] = None,
+    dcntnaf_min: Optional[float] = None,
+    dcntnaf_max: Optional[float] = None,
+    dcntpa_min: Optional[float] = None,
+    dcntpa_max: Optional[float] = None,
+    idcomtxt: Optional[str] = None,
+    idpar: Multi = None,
+    jannatmin_min: Optional[int] = None,
+    jannatmin_max: Optional[int] = None,
+    nlocal_min: Optional[int] = None,
+    nlocal_max: Optional[int] = None,
+    nlogh_min: Optional[int] = None,
+    nlogh_max: Optional[int] = None,
+    slocal_min: Optional[float] = None,
+    slocal_max: Optional[float] = None,
+    sprincp_min: Optional[float] = None,
+    sprincp_max: Optional[float] = None,
+    stoth_min: Optional[float] = None,
+    stoth_max: Optional[float] = None,
+    jannathmin_min: Optional[int] = None,
+    jannathmin_max: Optional[int] = None,
+) -> Table:
+    """Retourne les parcelles issues des Fichiers fonciers pour le périmètre demandé.
+
+    Un paramètre de localisation au moins est requis : ``code_insee``,
+    ``in_bbox`` ou ``lon_lat``.
 
     Args:
-        **code_insee (str or list, optional)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
-
-        **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
-
-        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max] - Maximum 0.02 deg x 0.02 deg. Defaults to None.
-
-        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des parcelles renvoyées [longitude, latitude]. Defaults to None.
-
-        **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **catpro3 (str, optional)**: Chaîne(s) de caractères contenue dans le code de catégorie de
-          propriétaire (il est possible de ne specifier que les premiers niveaux et
-          de séparer par une virgule). Defaults to None.
-
-        **ctpdl (str, optional)**: Type de pdl (type de copropriété). Defaults to None.
-
-        **dcntarti_min (int, optional)**: Surface artificialisée minimale de la parcelle (m2). Defaults to None.
-
-        **dcntarti_max (int, optional)**: Surface artificialisée maximale de la parcelle (m2). Defaults to None.
-
-        **dcntnaf_min (int, optional)**: Surface NAF minimale de la parcelle (m2). Defaults to None.
-
-        **dcntnaf_max (int, optional)**: Surface NAF maximale de la parcelle (m2). Defaults to None.
-
-        **dcntpa_min (int, optional)**: Surface minimale de la parcelle (m2). Defaults to None.
-
-        **dcntpa_max (int, optional)**: Surface maximale de la parcelle (m2). Defaults to None.
-
-        **idcomtxt (str, optional)**: Chaine de caractères contenue dans le libellé de la commune. Defaults to None.
-
-        **idpar (str, optional)**: Identifiants de parcelle (séparés par une virgule). Defaults to None.
-
-        **jannathmin_min (int, optional)**: Année minimale de construction du local le plus ancien. Defaults to None.
-
-        **jannathmin_max (int, optional)**: Année maximale de construction du local le plus ancien. Defaults to None.
-
-        **nlocal_min (int, optional)**: Nombre de locaux minimal sur la parcelle. Defaults to None.
-
-        **nlocal_max (int, optional)**: Nombre de locaux maximal sur la parcelle. Defaults to None.
-
-        **nlogh_min (int, optional)**: Nombre de logements minimal sur la parcelle. Defaults to None.
-
-        **nlogh_max (int, optional)**:Nombre de logements maximal sur la parcelle. Defaults to None.
-
-        **slocal_min (int, optional)**: Surface minimale des parties d'évaluation (m2). Defaults to None.
-
-        **slocal_max (int, optional)**: Surface maximale des parties d'évaluation (m2). Defaults to None.
-
-        **sprincp_min (int, optional)**:Surface minimale des pièces principales professionnelles (m2). Defaults to None.
-
-        **sprincp_max (int, optional)**: Surface maximale des pièces principales professionnelles (m2). Defaults to None.
-
-        **stoth_min (int, optional)**:Surface minimale des pièces d'habitation (m2). Defaults to None.
-
-        **stoth_max (int, optional)**: Surface maximale des pièces d'habitation (m2). Defaults to None.
+        code_insee: Code(s) INSEE communaux ou d'arrondissements municipaux.
+        in_bbox: Emprise ``[lon_min, lat_min, lon_max, lat_max]``,
+            0,02° x 0,02° au plus.
+        lon_lat: Point ``[longitude, latitude]`` contenu dans les parcelles renvoyées.
+        fields: ``"all"`` pour obtenir tous les champs.
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        catpro3: Code(s) de catégorie de propriétaire ; les premiers niveaux suffisent.
+        ctpdl: Type de propriété divisée en lots (type de copropriété).
+        dcntarti_min: Surface artificialisée minimale de la parcelle (m²).
+        dcntarti_max: Surface artificialisée maximale de la parcelle (m²).
+        dcntnaf_min: Surface NAF minimale de la parcelle (m²).
+        dcntnaf_max: Surface NAF maximale de la parcelle (m²).
+        dcntpa_min: Surface minimale de la parcelle (m²).
+        dcntpa_max: Surface maximale de la parcelle (m²).
+        idcomtxt: Chaîne contenue dans le libellé de la commune.
+        idpar: Identifiant(s) de parcelle (liste ou chaîne séparée par des virgules).
+        jannatmin_min: Année minimale de construction du local le plus ancien.
+        jannatmin_max: Année maximale de construction du local le plus ancien.
+        nlocal_min: Nombre minimal de locaux sur la parcelle.
+        nlocal_max: Nombre maximal de locaux sur la parcelle.
+        nlogh_min: Nombre minimal de logements sur la parcelle.
+        nlogh_max: Nombre maximal de logements sur la parcelle.
+        slocal_min: Surface minimale des parties d'évaluation (m²).
+        slocal_max: Surface maximale des parties d'évaluation (m²).
+        sprincp_min: Surface minimale des pièces principales professionnelles (m²).
+        sprincp_max: Surface maximale des pièces principales professionnelles (m²).
+        stoth_min: Surface minimale des pièces d'habitation (m²).
+        stoth_max: Surface maximale des pièces d'habitation (m²).
+        jannathmin_min: Obsolète, remplacé par ``jannatmin_min``.
+        jannathmin_max: Obsolète, remplacé par ``jannatmin_max``.
 
     Returns:
-        dataframe: données sur les parcelles issues des Fichiers fonciers
+        Un tableau des parcelles (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).
 
     Examples:
         >>> import apifoncier.ff as ff
         >>> ff.parcelles(code_insee="59350", dcntpa_min=3000)
-        >>> ff.parcelles(in_bbox=[3,50,3.01,50.01])
+        >>> ff.parcelles(in_bbox=[3, 50, 3.01, 50.01])
     """
-    result = utils.Resultat("/ff/parcelles/", use_token=True, **locals())
-    df = result.get_dataframe()
-    return df
+    params = dict(locals())
+    _rename_deprecated(params)
+    return fetch("/ff/parcelles/", params, use_token=True)
 
 
 def geoparcelles(
-    code_insee=None,
-    in_bbox=None,
-    lon_lat=None,
-    fields=None,
-    ordering=None,
-    catpro3=None,
-    ctpdl=None,
-    dcntarti_min=None,
-    dcntarti_max=None,
-    dcntnaf_min=None,
-    dcntnaf_max=None,
-    dcntpa_min=None,
-    dcntpa_max=None,
-    idcomtxt=None,
-    idpar=None,
-    jannathmin_min=None,
-    jannathmin_max=None,
-    nlocal_min=None,
-    nlocal_max=None,
-    nlogh_min=None,
-    nlogh_max=None,
-    slocal_min=None,
-    slocal_max=None,
-    sprincp_min=None,
-    sprincp_max=None,
-    stoth_min=None,
-    stoth_max=None,
-):
-    """Retourne les parcelles issues des Fichiers fonciers pour le périmètre demandé sous forme d'un geodataframe integrant les contours géométriques
+    code_insee: Codes = None,
+    in_bbox: BBox = None,
+    lon_lat: Point = None,
+    fields: Optional[str] = None,
+    ordering: Optional[str] = None,
+    catpro3: Multi = None,
+    ctpdl: Optional[str] = None,
+    dcntarti_min: Optional[float] = None,
+    dcntarti_max: Optional[float] = None,
+    dcntnaf_min: Optional[float] = None,
+    dcntnaf_max: Optional[float] = None,
+    dcntpa_min: Optional[float] = None,
+    dcntpa_max: Optional[float] = None,
+    idcomtxt: Optional[str] = None,
+    idpar: Multi = None,
+    jannatmin_min: Optional[int] = None,
+    jannatmin_max: Optional[int] = None,
+    nlocal_min: Optional[int] = None,
+    nlocal_max: Optional[int] = None,
+    nlogh_min: Optional[int] = None,
+    nlogh_max: Optional[int] = None,
+    slocal_min: Optional[float] = None,
+    slocal_max: Optional[float] = None,
+    sprincp_min: Optional[float] = None,
+    sprincp_max: Optional[float] = None,
+    stoth_min: Optional[float] = None,
+    stoth_max: Optional[float] = None,
+    jannathmin_min: Optional[int] = None,
+    jannathmin_max: Optional[int] = None,
+) -> gpd.GeoDataFrame:
+    """Retourne les parcelles issues des Fichiers fonciers avec leurs contours.
+
+    Un paramètre de localisation au moins est requis : ``code_insee``,
+    ``in_bbox`` ou ``lon_lat``.
 
     Args:
-        **code_insee (str or list, optional)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
-
-        **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
-
-        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max] - Maximum 0.02 deg x 0.02 deg. Defaults to None.
-
-        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des parcelles renvoyées [longitude, latitude]. Defaults to None.
-
-        **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **catpro3 (str, optional)**: Chaîne(s) de caractères contenue dans le code de catégorie de
-          propriétaire (il est possible de ne specifier que les premiers niveaux et
-          de séparer par une virgule). Defaults to None.
-
-        **ctpdl (str, optional)**: Type de pdl (type de copropriété). Defaults to None.
-
-        **dcntarti_min (int, optional)**: Surface artificialisée minimale de la parcelle (m2). Defaults to None.
-
-        **dcntarti_max (int, optional)**: Surface artificialisée maximale de la parcelle (m2). Defaults to None.
-
-        **dcntnaf_min (int, optional)**: Surface NAF minimale de la parcelle (m2). Defaults to None.
-
-        **dcntnaf_max (int, optional)**: Surface NAF maximale de la parcelle (m2). Defaults to None.
-
-        **dcntpa_min (int, optional)**: Surface minimale de la parcelle (m2). Defaults to None.
-
-        **dcntpa_max (int, optional)**: Surface maximale de la parcelle (m2). Defaults to None.
-
-        **idcomtxt (str, optional)**: Chaine de caractères contenue dans le libellé de la commune. Defaults to None.
-
-        **idpar (str, optional)**: Identifiants de parcelle (séparés par une virgule). Defaults to None.
-
-        **jannathmin_min (int, optional)**: Année minimale de construction du local le plus ancien. Defaults to None.
-
-        **jannathmin_max (int, optional)**: Année maximale de construction du local le plus ancien. Defaults to None.
-
-        **nlocal_min (int, optional)**: Nombre de locaux minimal sur la parcelle. Defaults to None.
-
-        **nlocal_max (int, optional)**: Nombre de locaux maximal sur la parcelle. Defaults to None.
-
-        **nlogh_min (int, optional)**: Nombre de logements minimal sur la parcelle. Defaults to None.
-
-        **nlogh_max (int, optional)**:Nombre de logements maximal sur la parcelle. Defaults to None.
-
-        **slocal_min (int, optional)**: Surface minimale des parties d'évaluation (m2). Defaults to None.
-
-        **slocal_max (int, optional)**: Surface maximale des parties d'évaluation (m2). Defaults to None.
-
-        **sprincp_min (int, optional)**:Surface minimale des pièces principales professionnelles (m2). Defaults to None.
-
-        **sprincp_max (int, optional)**: Surface maximale des pièces principales professionnelles (m2). Defaults to None.
-
-        **stoth_min (int, optional)**:Surface minimale des pièces d'habitation (m2). Defaults to None.
-
-        **stoth_max (int, optional)**: Surface maximale des pièces d'habitation (m2). Defaults to None.
+        code_insee: Code(s) INSEE communaux ou d'arrondissements municipaux.
+        in_bbox: Emprise ``[lon_min, lat_min, lon_max, lat_max]``,
+            0,02° x 0,02° au plus.
+        lon_lat: Point ``[longitude, latitude]`` contenu dans les parcelles renvoyées.
+        fields: ``"all"`` pour obtenir tous les champs.
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        catpro3: Code(s) de catégorie de propriétaire ; les premiers niveaux suffisent.
+        ctpdl: Type de propriété divisée en lots (type de copropriété).
+        dcntarti_min: Surface artificialisée minimale de la parcelle (m²).
+        dcntarti_max: Surface artificialisée maximale de la parcelle (m²).
+        dcntnaf_min: Surface NAF minimale de la parcelle (m²).
+        dcntnaf_max: Surface NAF maximale de la parcelle (m²).
+        dcntpa_min: Surface minimale de la parcelle (m²).
+        dcntpa_max: Surface maximale de la parcelle (m²).
+        idcomtxt: Chaîne contenue dans le libellé de la commune.
+        idpar: Identifiant(s) de parcelle (liste ou chaîne séparée par des virgules).
+        jannatmin_min: Année minimale de construction du local le plus ancien.
+        jannatmin_max: Année maximale de construction du local le plus ancien.
+        nlocal_min: Nombre minimal de locaux sur la parcelle.
+        nlocal_max: Nombre maximal de locaux sur la parcelle.
+        nlogh_min: Nombre minimal de logements sur la parcelle.
+        nlogh_max: Nombre maximal de logements sur la parcelle.
+        slocal_min: Surface minimale des parties d'évaluation (m²).
+        slocal_max: Surface maximale des parties d'évaluation (m²).
+        sprincp_min: Surface minimale des pièces principales professionnelles (m²).
+        sprincp_max: Surface maximale des pièces principales professionnelles (m²).
+        stoth_min: Surface minimale des pièces d'habitation (m²).
+        stoth_max: Surface maximale des pièces d'habitation (m²).
+        jannathmin_min: Obsolète, remplacé par ``jannatmin_min``.
+        jannathmin_max: Obsolète, remplacé par ``jannatmin_max``.
 
     Returns:
-        geodataframe: données sur les parcelles issues des Fichiers fonciers
+        Un ``GeoDataFrame`` (EPSG:4326) indexé par l'identifiant des parcelles.
 
     Examples:
         >>> import apifoncier.ff as ff
         >>> ff.geoparcelles(code_insee="59350", dcntpa_min=3000)
-        >>> ff.geoparcelles(in_bbox=[3,50,3.01,50.01])
+        >>> ff.geoparcelles(lon_lat=[3.06, 50.63])
     """
-    result = utils.Resultat("/ff/geoparcelles/", use_token=True, **locals())
-    gdf = result.get_geodataframe()
-    return gdf
+    params = dict(locals())
+    _rename_deprecated(params)
+    return fetch("/ff/geoparcelles/", params, geo=True, use_token=True)
 
 
-def parcelle(idpar=None):
-    """Renvoie la parcelle correspondant à l'identifiant idpar (str)
+def parcelle(idpar: str) -> Table:
+    """Retourne la parcelle correspondant à l'identifiant ``idpar``.
+
+    Args:
+        idpar: Identifiant de la parcelle.
 
     Returns:
-        dataframe: donnée sur la parcelle issue des Fichiers fonciers
+        Un tableau d'une ligne.
+
+    Raises:
+        ValidationError: Si l'identifiant est absent ou invalide.
     """
-    base_url = get_param("BASE_URL")
-    url = f"""{base_url}/ff/parcelles/{idpar}/"""
-    response = utils.get_api_response(url, use_token=True)
-    return pd.DataFrame.from_dict([response])
+    return fetch_one(f"/ff/parcelles/{path_segment(idpar, 'idpar')}/", use_token=True)
 
 
 ########################################################################
@@ -233,109 +235,94 @@ def parcelle(idpar=None):
 
 
 def tups(
-    code_insee=None,
-    in_bbox=None,
-    lon_lat=None,
-    fields=None,
-    ordering=None,
-    catpro3=None,
-    idtup=None,
-    typetup=None,
-):
-    """Retourne les tup issues des Fichiers fonciers pour le périmètre demandé sous forme d'un dataframe
+    code_insee: Codes = None,
+    in_bbox: BBox = None,
+    lon_lat: Point = None,
+    fields: Optional[str] = None,
+    ordering: Optional[str] = None,
+    catpro3: Multi = None,
+    idtup: Multi = None,
+    typetup: Optional[str] = None,
+) -> Table:
+    """Retourne les unités foncières (TUP) issues des Fichiers fonciers.
+
+    Un paramètre de localisation au moins est requis : ``code_insee``,
+    ``in_bbox`` ou ``lon_lat``.
 
     Args:
-        **code_insee (str or list, optional)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
-
-        **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
-
-        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max] - Maximum 0.02 deg x 0.02 deg. Defaults to None.
-
-        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des tup renvoyées [longitude, latitude]. Defaults to None.
-
-        **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **catpro3 (str, optional)**: Chaîne(s) de caractères contenue dans le code de catégorie de
-          propriétaire (il est possible de ne specifier que les premiers niveaux et
-          de séparer par une virgule). Defaults to None.
-
-        **idtup (str, optional)**: Identifiants de tup (séparés par une virgule). Defaults to None.
-
-        **typetup (str, optional)**: Type de pdl (type de copropriété). Defaults to None.
-
+        code_insee: Code(s) INSEE communaux ou d'arrondissements municipaux.
+        in_bbox: Emprise ``[lon_min, lat_min, lon_max, lat_max]``,
+            0,02° x 0,02° au plus.
+        lon_lat: Point ``[longitude, latitude]`` contenu dans les TUP renvoyées.
+        fields: ``"all"`` pour obtenir tous les champs.
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        catpro3: Code(s) de catégorie de propriétaire ; les premiers niveaux suffisent.
+        idtup: Identifiant(s) de TUP (liste ou chaîne séparée par des virgules).
+        typetup: Type de TUP (``SIMPLE``, ``PDLMP`` ou ``UF``).
 
     Returns:
-        dataframe: données sur les tup issues des Fichiers fonciers
+        Un tableau des TUP (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).
 
     Examples:
         >>> import apifoncier.ff as ff
-        >>> ff.tups(code_insee="59350", catpro3='P')
-        >>> ff.tups(in_bbox=[3,50,3.01,50.01])
+        >>> ff.tups(code_insee="59350", catpro3="P")
+        >>> ff.tups(in_bbox=[3, 50, 3.01, 50.01])
     """
-    result = utils.Resultat("/ff/tups/", use_token=True, **locals())
-    df = result.get_dataframe()
-    return df
+    params = dict(locals())
+    return fetch("/ff/tups/", params, use_token=True)
 
 
 def geotups(
-    code_insee=None,
-    in_bbox=None,
-    lon_lat=None,
-    fields=None,
-    ordering=None,
-    catpro3=None,
-    idtup=None,
-    typetup=None,
-):
-    """Retourne les tup issues des Fichiers fonciers pour le périmètre demandé sous forme d'un geodataframe integrant les contours géométriques
+    code_insee: Codes = None,
+    in_bbox: BBox = None,
+    lon_lat: Point = None,
+    fields: Optional[str] = None,
+    ordering: Optional[str] = None,
+    catpro3: Multi = None,
+    idtup: Multi = None,
+    typetup: Optional[str] = None,
+) -> gpd.GeoDataFrame:
+    """Retourne les unités foncières (TUP) issues des Fichiers fonciers avec leurs contours.
+
+    Un paramètre de localisation au moins est requis : ``code_insee``,
+    ``in_bbox`` ou ``lon_lat``.
 
     Args:
-        **code_insee (str or list, optional)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
-
-        **coddep (str or list, optional)**: Codes INSEE des départements. Defaults to None.
-
-        **in_bbox (list, optional)**: Emprise rectangulaire sous la forme d'une liste [longitude_min, latitude_min, longitude_min, latitude_max] - Maximum 0.02 deg x 0.02 deg. Defaults to None.
-
-        **lon_lat (list, optional)**: Coordonnée du point au sein de la ou des tup renvoyées [longitude, latitude]. Defaults to None.
-
-        **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **catpro3 (str, optional)**: Chaîne(s) de caractères contenue dans le code de catégorie de
-          propriétaire (il est possible de ne specifier que les premiers niveaux et
-          de séparer par une virgule). Defaults to None.
-
-        **idtup (str, optional)**: Identifiants de tup (séparés par une virgule). Defaults to None.
-
-        **typetup (str, optional)**: Type de pdl (type de copropriété). Defaults to None.
-
+        code_insee: Code(s) INSEE communaux ou d'arrondissements municipaux.
+        in_bbox: Emprise ``[lon_min, lat_min, lon_max, lat_max]``,
+            0,02° x 0,02° au plus.
+        lon_lat: Point ``[longitude, latitude]`` contenu dans les TUP renvoyées.
+        fields: ``"all"`` pour obtenir tous les champs.
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        catpro3: Code(s) de catégorie de propriétaire ; les premiers niveaux suffisent.
+        idtup: Identifiant(s) de TUP (liste ou chaîne séparée par des virgules).
+        typetup: Type de TUP (``SIMPLE``, ``PDLMP`` ou ``UF``).
 
     Returns:
-        geodataframe: données sur les tup issues des Fichiers fonciers
+        Un ``GeoDataFrame`` (EPSG:4326) indexé par l'identifiant des TUP.
 
     Examples:
         >>> import apifoncier.ff as ff
-        >>> ff.geotups(code_insee="59350", catpro3='P')
-        >>> ff.geotups(in_bbox=[3,50,3.01,50.01])
+        >>> ff.geotups(code_insee="59350", catpro3="P")
+        >>> ff.geotups(in_bbox=[3, 50, 3.01, 50.01])
     """
-    result = utils.Resultat("/ff/geotups/", use_token=True, **locals())
-    gdf = result.get_geodataframe()
-    return gdf
+    params = dict(locals())
+    return fetch("/ff/geotups/", params, geo=True, use_token=True)
 
 
-def tup(idtup=None):
-    """Renvoie la tup correspondante à l'identifiant idtup (str)
+def tup(idtup: str) -> Table:
+    """Retourne la TUP correspondant à l'identifiant ``idtup``.
+
+    Args:
+        idtup: Identifiant de la TUP.
 
     Returns:
-        dataframe: donnée sur la tup issue des Fichiers fonciers
+        Un tableau d'une ligne.
+
+    Raises:
+        ValidationError: Si l'identifiant est absent ou invalide.
     """
-    base_url = get_param("BASE_URL")
-    url = f"""{base_url}/ff/parcelles/{idtup}/"""
-    response = utils.get_api_response(url, use_token=True)
-    return pd.DataFrame.from_dict([response])
+    return fetch_one(f"/ff/tups/{path_segment(idtup, 'idtup')}/", use_token=True)
 
 
 ########################################################################
@@ -344,76 +331,63 @@ def tup(idtup=None):
 
 
 def locaux(
-    code_insee=None,
-    fields=None,
-    ordering=None,
-    catpro3=None,
-    dteloc=None,
-    idpar=None,
-    idprocpte=None,
-    idsec=None,
-    locprop=None,
-    loghlls=None,
-    proba_rprs=None,
-    slocal_min=None,
-    slocal_max=None,
-    typeact=None,
-):
-    """Retourne les locaux des Fichiers fonciers pour le périmètre demandé sous forme d'un dataframe
+    code_insee: Codes = None,
+    fields: Optional[str] = None,
+    ordering: Optional[str] = None,
+    catpro3: Multi = None,
+    dteloc: Multi = None,
+    idpar: Optional[str] = None,
+    idprocpte: Optional[str] = None,
+    idsec: Optional[str] = None,
+    locprop: Multi = None,
+    loghlls: Optional[str] = None,
+    proba_rprs: Multi = None,
+    slocal_min: Optional[float] = None,
+    slocal_max: Optional[float] = None,
+    typeact: Multi = None,
+) -> Table:
+    """Retourne les locaux issus des Fichiers fonciers pour les communes demandées.
 
     Args:
-        **code_insee (str or list, optional)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
-
-        **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **catpro3 (str or list, optional)**: Chaîne(s) de caractères contenue dans le code de catégorie de
-          propriétaire (il est possible de ne specifier que les premiers niveaux et
-          de séparer par une virgule). Defaults to None.
-
-        **dteloc (str or list, optional)**: Type(s) de local (il est possible de spécifier plusieurs types
-          et de séparer par une virgule). Defaults to None.
-
-        **idpar (str, optional)**: Identifiant de parcelle. Defaults to None.
-
-        **idprocpte (str, optional)**: Identifiant de compte communal. Defaults to None.
-
-        **idsec (str, optional)**: Identifiant de section cadastrale_. Defaults to None.
-
-        **locprop (str_, optional)**:Localisation généralisée du propriétaire recevant la Taxe Foncière. Defaults to None.
-
-        **loghlls (str, optional)**: Logement d’habitation de type logement social repéré par exonération. Defaults to None.
-
-        **proba_rprs (str, optional)**: Probabilité de résidence principale ou secondaire (il est possible
-          de spécifier plusieurs types et de séparer par une virgule). Defaults to None.
-
-        **slocal_min (int, optional)**: Surface minimale des parties d'évaluation (m2). Defaults to None.
-
-        **slocal_max (int, optional)**: Surface maximale des parties d'évaluation (m2). Defaults to None.
-
-        **typeact (str, optional)**: Chaîne(s) de caractères contenue dans le classement du local
-          selon le type d''activité (Code catégorie du local d’activité) (il est possible
-          de ne specifier que les premiers niveaux et de séparer par une virgule). Defaults to None.
+        code_insee: Code(s) INSEE communaux ou d'arrondissements municipaux (requis).
+        fields: ``"all"`` pour obtenir tous les champs.
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        catpro3: Code(s) de catégorie de propriétaire ; les premiers niveaux suffisent.
+        dteloc: Type(s) de local.
+        idpar: Identifiant de parcelle.
+        idprocpte: Identifiant de compte communal.
+        idsec: Identifiant de section cadastrale.
+        locprop: Localisation(s) généralisée(s) du propriétaire.
+        loghlls: Logement social repéré par exonération.
+        proba_rprs: Probabilité(s) de résidence principale ou secondaire.
+        slocal_min: Surface minimale des parties d'évaluation (m²).
+        slocal_max: Surface maximale des parties d'évaluation (m²).
+        typeact: Code(s) de catégorie de local d'activité ; les premiers niveaux suffisent.
 
     Returns:
-        dataframe: données sur les locaux issues des Fichiers fonciers
+        Un tableau des locaux (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).
+
+    Examples:
+        >>> import apifoncier.ff as ff
+        >>> ff.locaux(code_insee="59350", dteloc=["1", "2"])
     """
-    result = utils.Resultat("/ff/locaux/", use_token=True, **locals())
-    df = result.get_dataframe()
-    return df
+    params = dict(locals())
+    return fetch("/ff/locaux/", params, use_token=True)
 
 
-def local(idlocal=None):
-    """Renvoie le local correspondant à l'identifiant idlocal (str)
+def local(idlocal: str) -> Table:
+    """Retourne le local correspondant à l'identifiant ``idlocal``.
+
+    Args:
+        idlocal: Identifiant fiscal du local.
 
     Returns:
-        dataframe: donnée sur le local issu des Fichiers fonciers
+        Un tableau d'une ligne.
+
+    Raises:
+        ValidationError: Si l'identifiant est absent ou invalide.
     """
-    base_url = get_param("BASE_URL")
-    url = f"""{base_url}/ff/locaux/{idlocal}/"""
-    response = utils.get_api_response(url, use_token=True)
-    return pd.DataFrame.from_dict([response])
+    return fetch_one(f"/ff/locaux/{path_segment(idlocal, 'idlocal')}/", use_token=True)
 
 
 ########################################################################
@@ -422,55 +396,52 @@ def local(idlocal=None):
 
 
 def proprios(
-    code_insee=None,
-    fields=None,
-    ordering=None,
-    catpro3=None,
-    ccodro=None,
-    gtoper=None,
-    idprocpte=None,
-    locprop=None,
-    typedroit=None,
-):
-    """Retourne les droits de propriétés des Fichiers fonciers pour le périmètre demandé sous forme d'un dataframe
+    code_insee: Codes = None,
+    fields: Optional[str] = None,
+    ordering: Optional[str] = None,
+    catpro3: Multi = None,
+    ccodro: Multi = None,
+    gtoper: Optional[str] = None,
+    idprocpte: Optional[str] = None,
+    locprop: Multi = None,
+    typedroit: Optional[str] = None,
+) -> Table:
+    """Retourne les droits de propriété issus des Fichiers fonciers.
 
     Args:
-        **code_insee (str or list, optional)**: Codes INSEE communaux ou des arrondissements municipaux. Defaults to None.
-
-        **fields (str, optional)**: Mettre à "all" pour obtenir tous les champs associés. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **catpro3 (str, optional)**: Chaîne(s) de caractères contenue dans le code de catégorie de
-          propriétaire (il est possible de ne specifier que les premiers niveaux et
-          de séparer par une virgule). Defaults to None.
-
-        **ccodro (str, optional)**: Code(s) du droit réel ou particulier (il est possible de spécifier
-          plusieurs valeurs et de séparer par une virgule). Defaults to None.
-
-        **gtoper (str, optional)**: Indicateur de personne physique ou moral. Defaults to None.
-
-        **idprocpte (str, optional)**: Identifiant de compte communal. Defaults to None.
-
-        **locprop (str, optional)**:Localisation généralisée du propriétaire recevant la Taxe Foncière. Defaults to None.
-
-        **typedroit (str, optional)**: Type de droit : propriétaire ou gestionnaire. Defaults to None.
+        code_insee: Code(s) INSEE communaux ou d'arrondissements municipaux (requis).
+        fields: ``"all"`` pour obtenir tous les champs.
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        catpro3: Code(s) de catégorie de propriétaire ; les premiers niveaux suffisent.
+        ccodro: Code(s) du droit réel ou particulier.
+        gtoper: Indicateur de personne physique ou morale.
+        idprocpte: Identifiant de compte communal.
+        locprop: Localisation(s) généralisée(s) du propriétaire.
+        typedroit: Type de droit : propriétaire ou gestionnaire.
 
     Returns:
-        dataframe: données sur les locaux issues des Fichiers fonciers
+        Un tableau des droits de propriété (``pandas`` ou ``polars``).
+
+    Examples:
+        >>> import apifoncier.ff as ff
+        >>> ff.proprios(code_insee="59350")
     """
-    result = utils.Resultat("/ff/proprios/", use_token=True, **locals())
-    df = result.get_dataframe()
-    return df
+    params = dict(locals())
+    return fetch("/ff/proprios/", params, use_token=True)
 
 
-def proprio(idprodroit=None):
-    """Renvoie le droit de propriété correspondant à l'identifiant idprodroit (str)
+def proprio(idprodroit: str) -> Table:
+    """Retourne le droit de propriété correspondant à l'identifiant ``idprodroit``.
+
+    Args:
+        idprodroit: Identifiant du droit de propriété.
 
     Returns:
-        dataframe: donnée sur le droit de propriété issu des Fichiers fonciers
+        Un tableau d'une ligne.
+
+    Raises:
+        ValidationError: Si l'identifiant est absent ou invalide.
     """
-    base_url = get_param("BASE_URL")
-    url = f"""{base_url}/ff/proprios/{idprodroit}/"""
-    response = utils.get_api_response(url, use_token=True)
-    return pd.DataFrame.from_dict([response])
+    return fetch_one(
+        f"/ff/proprios/{path_segment(idprodroit, 'idprodroit')}/", use_token=True
+    )
