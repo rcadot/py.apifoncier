@@ -1,0 +1,48 @@
+name: Documentation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Construction de la documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - name: Installation de pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+      - name: Installation
+        run: uv sync --group docs
+      - name: Construction HTML
+        run: uv run sphinx-build -b html docs docs/_build/html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docs-html
+          path: docs/_build/html
+
+  deploy:
+    name: Publication sur GitHub Pages
+    # Publication uniquement depuis la branche principale, jamais depuis une PR.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-html
+          path: docs/_build/html
+      - uses: astral-sh/setup-uv@v6
+      - name: Publication sur la branche gh-pages
+        run: uvx ghp-import -n -p -f docs/_build/html
