@@ -31,6 +31,9 @@ extensions = [
     "nbsphinx",
 ]
 
+# Libellés automatiques limités aux titres de page : les titres de section
+# (« Présentation », « Import »...) se répètent d'une page à l'autre.
+autosectionlabel_maxdepth = 1
 autodoc_typehints = "description"
 autodoc_member_order = "bysource"
 napoleon_google_docstring = True
