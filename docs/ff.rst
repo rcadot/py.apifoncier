@@ -26,12 +26,22 @@ Pour importer le module correspondant :
 
 .. code-block:: python
 
-    ## Configuration préalable du jeton API
-    import apifoncier
-    API_TOKEN = "<MON_TOKEN_API>"
-    apifoncier.configure(TOKEN=API_TOKEN)
-
+    ## Le jeton est lu dans la variable d'environnement APIFONCIER_TOKEN
     import apifoncier.ff as ff
+
+Le module lit par défaut la variable d'environnement ``APIFONCIER_TOKEN``, ce qui évite
+d'écrire le jeton dans le code. À défaut, il peut être transmis explicitement, en le lisant
+dans l'environnement ou en le saisissant à l'exécution, jamais en clair dans un script versionné :
+
+.. code-block:: python
+
+    import os
+    from getpass import getpass
+    import apifoncier
+
+    apifoncier.configure(TOKEN=os.environ["MON_JETON"])
+    # ou, de façon interactive
+    apifoncier.configure(TOKEN=getpass("Jeton API : "))
 
 Description des fonctions
 -------------------------

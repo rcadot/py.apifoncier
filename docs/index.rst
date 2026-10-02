@@ -1,12 +1,18 @@
 
 Bienvenue sur la documentation du package ``apifoncier``
-======================================
+=========================================================
 
 .. toctree::
    :maxdepth: 1
    :caption: Quickstart
 
    ./quickstart.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Guide
+
+   ./configuration.rst
 
 .. toctree::
    :maxdepth: 1
@@ -19,6 +25,7 @@ Bienvenue sur la documentation du package ``apifoncier``
    ./dvf_opendata.rst
    ./dv3f.rst
    ./ff.rst
+   ./dictionnaire_donnees.rst
  
 .. toctree::
    :maxdepth: 2

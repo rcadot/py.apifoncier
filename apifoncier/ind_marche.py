@@ -1,130 +1,172 @@
-import pandas as pd
-from .config import get_param
+"""Indicateurs de marché immobilier issus de DV3F (accès libre).
 
-from . import utils
+Endpoints interrogés :
+
+* ``/indicateurs/dv3f/prix/<periode>/`` : prix et volumes ;
+* ``/indicateurs/dv3f/activite/`` : activité de marché ;
+* ``/indicateurs/dv3f/accessibilite/`` : accessibilité financière ;
+* ``/indicateurs/dv3f/valorisation/<echelle>/<code>/`` : valorisation communale.
+"""
+
+from __future__ import annotations
+
+from typing import Optional, Union
+
+from ._query import Codes, Table, fetch
+from .exceptions import ValidationError
+
+ECHELLES = ("communes", "epci", "aav", "departements", "regions", "france")
+ECHELLES_VALORISATION = ("aav", "epci")
+PERIODES = ("annuel", "triennal")
+
+
+def _check_choice(name: str, value: Optional[str], choices: tuple) -> str:
+    """Contrôle qu'une valeur appartient à une liste de choix.
+
+    Args:
+        name: Nom du paramètre, pour le message d'erreur.
+        value: Valeur fournie.
+        choices: Valeurs admises.
+
+    Returns:
+        La valeur contrôlée.
+
+    Raises:
+        ValidationError: Si la valeur n'est pas admise.
+    """
+    if value is None or value not in choices:
+        raise ValidationError(
+            f"Le paramètre {name} doit valoir {' / '.join(repr(c) for c in choices)}."
+        )
+    return value
 
 
 def prix_volume(
-    echelle=None,
-    code=None,
-    ordering=None,
-    annee=None,
-    periode="annuel",
-):
-    """Retourne les indicateurs annuels ou triennaux de prix et de volume pour les entités de l'échelle geographique définie
+    echelle: Optional[str] = None,
+    code: Codes = None,
+    ordering: Optional[str] = None,
+    annee: Optional[Union[int, str]] = None,
+    periode: str = "annuel",
+    paginate: bool = True,
+    output: Optional[str] = None,
+) -> Table:
+    """Retourne les indicateurs annuels ou triennaux de prix et de volume.
 
     Args:
-        **echelle (str, required)**: Echelle géographique souhaitée parmi communes / epci / aav / departements / regions / france
-
-        **code (str or list, required)**: Codes INSEE des entités géographiques. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **annee (str, optional)**: Année. Defaults to None.
-
-        **periode (str, optional)**: Prend la valeur "annuel" ou "triennal". Defaults to annuel.
+        echelle: Échelle géographique parmi ``communes``, ``epci``, ``aav``,
+            ``departements``, ``regions`` et ``france`` (requis).
+        code: Code(s) des entités géographiques (requis), regroupés par lots
+            de 10 par requête.
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        annee: Année (année centrale pour la période triennale).
+        periode: ``"annuel"`` (par défaut) ou ``"triennal"``.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
-        dataframe: données de prix et de volume sur les marchés immobiliers
+        Un tableau des indicateurs de prix et de volume.
 
     Examples:
         >>> import apifoncier.ind_marche as marche
         >>> marche.prix_volume(echelle="communes", code="59350")
-        >>> marche.prix_volume(echelle="departements", code=["62", "59"], annee="2020")
+        >>> marche.prix_volume(echelle="departements", code=["62", "59"], annee=2020)
         >>> marche.prix_volume(echelle="aav", code=["001", "002"], periode="triennal")
     """
-    if not periode in ("annuel", "triennal"):
-        raise ValueError("Le paramètre periode doit valoir 'annuel' ou 'triennal'.")
-    result = utils.Resultat(f"/indicateurs/dv3f/prix/{periode}/", **locals())
-    df = result.get_dataframe()
-    return df
+    _check_choice("echelle", echelle, ECHELLES)
+    _check_choice("periode", periode, PERIODES)
+    params = {"echelle": echelle, "code": code, "ordering": ordering, "annee": annee}
+    params.update(paginate=paginate, output=output)
+    return fetch(f"/indicateurs/dv3f/prix/{periode}/", params)
 
 
 def activite(
-    echelle=None,
-    code=None,
-    ordering=None,
-    annee=None,
-):
-    """Retourne les indicateurs d'activité de marché pour les entités de l'échelle geographique définie
+    echelle: Optional[str] = None,
+    code: Codes = None,
+    ordering: Optional[str] = None,
+    annee: Optional[Union[int, str]] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
+) -> Table:
+    """Retourne les indicateurs triennaux d'activité du marché.
 
     Args:
-        **echelle (str, required)**: Echelle géographique souhaitée parmi communes / epci / aav / departements / regions / france
-
-        **code (str or list, required)**: Codes INSEE des entités géographiques. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **annee (str, optional)**: Année. Defaults to None.
+        echelle: Échelle géographique parmi ``communes``, ``epci``, ``aav``,
+            ``departements``, ``regions`` et ``france`` (requis).
+        code: Code(s) des entités géographiques (requis).
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        annee: Année centrale de la période de trois ans.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
-        dataframe: données d'activité sur les marchés immobiliers
+        Un tableau des indicateurs d'activité.
 
     Examples:
         >>> import apifoncier.ind_marche as marche
-        >>> marche.activite_marche(echelle="communes", code="59350")
-        >>> marche.activite_marche(echelle="departements", code=["62", "59"], annee="2020")
-        >>> marche.activite_marche(echelle="aav", code=["001", "002"])
+        >>> marche.activite(echelle="communes", code="59350")
+        >>> marche.activite(echelle="departements", code=["62", "59"], annee=2020)
     """
-    result = utils.Resultat(f"/indicateurs/dv3f/activite/", **locals())
-    df = result.get_dataframe()
-    return df
+    _check_choice("echelle", echelle, ECHELLES)
+    params = {"echelle": echelle, "code": code, "ordering": ordering, "annee": annee}
+    params.update(paginate=paginate, output=output)
+    return fetch("/indicateurs/dv3f/activite/", params)
 
 
 def accessibilite(
-    code=None,
-    ordering=None,
-    annee=None,
-):
-    """Retourne les indicateurs d'accessibilité de marché pour toutes les communes des AAV définis
+    code: Codes = None,
+    ordering: Optional[str] = None,
+    annee: Optional[Union[int, str]] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
+) -> Table:
+    """Retourne les indicateurs d'accessibilité financière des communes des AAV demandées.
 
     Args:
-        **code (str or list, required)**: Codes INSEE de l'AAV. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **annee (str, optional)**: Année. Defaults to None.
+        code: Code(s) INSEE des aires d'attraction des villes (requis).
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        annee: Année.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
-        dataframe: données d'accessibilité des communes sur les marchés immobiliers
+        Un tableau des indicateurs d'accessibilité.
 
     Examples:
         >>> import apifoncier.ind_marche as marche
         >>> marche.accessibilite(code="001")
-        >>> marche.accessibilite(echelle="aav", code=["001", "002"])
+        >>> marche.accessibilite(code=["001", "002"])
     """
-    result = utils.Resultat(f"/indicateurs/dv3f/accessibilite/", **locals())
-    df = result.get_dataframe()
-    return df
+    params = dict(locals())
+    return fetch("/indicateurs/dv3f/accessibilite/", params)
 
 
 def valorisation(
-    echelle=None,
-    code_insee=None,
-    ordering=None,
-    annee=None,
-):
-    """Retourne les indicateurs de valorisation communale à l'aire d'attraction de la ville ou à l'EPCI
+    echelle: Optional[str] = None,
+    code_insee: Codes = None,
+    ordering: Optional[str] = None,
+    annee: Optional[Union[int, str]] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
+) -> Table:
+    """Retourne les indicateurs de valorisation des communes dans leur AAV ou leur EPCI.
 
     Args:
-        **echelle (str, required)**: Echelle géographique souhaitée parmi epci / aav
-
-        **code_insee (str or list, required)**: Codes INSEE des AAV ou de l'EPCI. Defaults to None.
-
-        **ordering (str, optional)**: Champs à utiliser pour ordonner le résultat. Defaults to None.
-
-        **annee (str, optional)**: Année. Defaults to None.
+        echelle: ``"aav"`` ou ``"epci"`` (requis).
+        code_insee: Code(s) des AAV ou des EPCI (requis).
+        ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
+        annee: Année centrale de la période de trois ans.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
-        dataframe: données sur les valorisations communales
+        Un tableau des indicateurs de valorisation.
 
     Examples:
         >>> import apifoncier.ind_marche as marche
         >>> marche.valorisation(echelle="aav", code_insee="001")
         >>> marche.valorisation(echelle="aav", code_insee=["001", "002"], annee=2020)
     """
-    if not echelle in ("aav", "epci"):
-        raise ValueError("Le paramètre echelle doit valoir 'aav' ou 'epci'.")
-    result = utils.Resultat(f"/indicateurs/dv3f/valorisation/{echelle}/", **locals())
-    df = result.get_dataframe(no_param_code=True)
-    return df
+    _check_choice("echelle", echelle, ECHELLES_VALORISATION)
+    params = {"code_insee": code_insee, "ordering": ordering, "annee": annee}
+    params.update(paginate=paginate, output=output)
+    return fetch(f"/indicateurs/dv3f/valorisation/{echelle}/", params, path_code=True)
