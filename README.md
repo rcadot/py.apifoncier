@@ -16,6 +16,12 @@ Le format de sortie polars est facultatif et s'installe avec l'extra corresponda
 pip install "apifoncier[polars]"
 ```
 
+Le cache HTTP local, lui aussi facultatif, s'installe de la même manière :
+
+```bash
+pip install "apifoncier[cache]"
+```
+
 Le paquet requiert Python 3.9 ou une version ultérieure.
 
 ## Démarrage rapide
@@ -66,7 +72,7 @@ apifoncier.get_config()  # configuration courante, jeton masqué
 apifoncier.reset()  # retour aux valeurs par défaut
 ```
 
-Les clés disponibles sont `BASE_URL`, `TOKEN`, `PROXY`, `PROGRESS_BAR`, `MAX_ATTEMPTS`, `BACKOFF_FACTOR`, `TIMEOUT`, `PAGE_SIZE` et `OUTPUT_FORMAT`. Leurs valeurs par défaut et leur rôle sont décrits dans la [documentation](https://rcadot.github.io/py.apifoncier/). La variable d'environnement `APIFONCIER_BASE_URL` permet de modifier l'URL de l'API sans toucher au code.
+Les clés disponibles sont `BASE_URL`, `TOKEN`, `PROXY`, `PROGRESS_BAR`, `MAX_ATTEMPTS`, `BACKOFF_FACTOR`, `TIMEOUT`, `PAGE_SIZE`, `OUTPUT_FORMAT`, `MAX_TILES`, `MAX_WORKERS`, `CACHE`, `CACHE_EXPIRE` et `CACHE_PATH`. Leurs valeurs par défaut et leur rôle sont décrits dans la [documentation](https://rcadot.github.io/py.apifoncier/). La variable d'environnement `APIFONCIER_BASE_URL` permet de modifier l'URL de l'API sans toucher au code.
 
 ## Formats de sortie
 
@@ -75,6 +81,22 @@ Les fonctions renvoient par défaut des `DataFrame` pandas. Avec `OUTPUT_FORMAT=
 ```python
 apifoncier.configure(OUTPUT_FORMAT="polars")
 ```
+
+## Options avancées
+
+Une emprise `in_bbox` plus grande que la limite de l'endpoint (0,02° pour Fichiers fonciers, DVF+ et DV3F, 1° pour Cartofriches) est découpée automatiquement en tuiles, dans la limite de `MAX_TILES`. Lorsqu'un appel produit plusieurs requêtes, elles s'exécutent en parallèle sur `MAX_WORKERS` threads. Un cache HTTP local, facultatif, évite de répéter les requêtes identiques ; il conserve en clair les données à accès restreint, et ne doit être activé que sur un poste maîtrisé. Enfin, `paginate=False` ne récupère que la première page et `output` (`"pandas"`, `"polars"` ou `"dict"`) fixe le format d'un appel.
+
+```python
+apifoncier.configure(MAX_WORKERS=4, CACHE=True)
+
+gdf = dvf.geomutations(in_bbox=[3.04, 50.62, 3.10, 50.66], anneemut=2022)
+apercu = dvf.mutations(code_insee="59350", paginate=False)
+df = dvf.mutations(code_insee="59350", output="polars")
+
+apifoncier.clear_cache()
+```
+
+Les détails figurent dans la [documentation](https://rcadot.github.io/py.apifoncier/).
 
 ## Interroger un endpoint sans fonction dédiée
 

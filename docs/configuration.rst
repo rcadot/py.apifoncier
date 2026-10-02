@@ -3,7 +3,8 @@ Configuration et usage avancé
 
 Cette page décrit les paramètres de configuration globale, le comportement du client
 face aux erreurs réseau, la fonction générique :func:`apifoncier.get`, les exceptions
-du module, la journalisation et les garanties de sécurité.
+du module, le découpage des grandes emprises, les requêtes parallèles, le cache local, la
+journalisation et les garanties de sécurité.
 
 Paramètres
 ----------
@@ -22,6 +23,7 @@ de ``ValueError``.
     apifoncier.get_config()      # copie de la configuration, jeton masqué
     apifoncier.reset()           # retour aux valeurs par défaut
     apifoncier.close_session()   # fermeture de la session HTTP partagée
+    apifoncier.clear_cache()     # vidage du cache HTTP local, s'il est activé
 
 .. list-table::
    :header-rows: 1
@@ -57,6 +59,21 @@ de ``ValueError``.
    * - ``OUTPUT_FORMAT``
      - Format des tableaux, ``"pandas"`` ou ``"polars"``
      - ``"pandas"``
+   * - ``MAX_TILES``
+     - Nombre maximal de tuiles par emprise ``in_bbox``
+     - ``100``
+   * - ``MAX_WORKERS``
+     - Nombre de requêtes exécutées en parallèle
+     - ``4``
+   * - ``CACHE``
+     - Activation du cache HTTP local (extra ``cache``)
+     - ``False``
+   * - ``CACHE_EXPIRE``
+     - Durée de validité des réponses en cache, en secondes
+     - ``86400``
+   * - ``CACHE_PATH``
+     - Fichier SQLite du cache
+     - ``None`` (dossier de cache de l'utilisateur)
 
 Variables d'environnement
 -------------------------
@@ -113,10 +130,88 @@ de ``DataFrame`` pandas. Le paquet polars doit être installé, par exemple avec
 ``pip install "apifoncier[polars]"``. Dans le cas contraire, une ``ImportError`` indique
 la commande à exécuter. Les fonctions ``geo*`` ne sont pas concernées : elles renvoient toujours
 un ``GeoDataFrame`` en EPSG:4326, indexé par l'identifiant des entités, y compris lorsqu'il est vide.
+Le format peut aussi être choisi appel par appel (voir plus bas).
 
 .. code-block:: python
 
     apifoncier.configure(OUTPUT_FORMAT="polars")
+
+Grandes emprises
+----------------
+
+L'API limite la taille de l'emprise ``in_bbox`` d'une requête : 0,02° de côté pour les Fichiers
+fonciers, DVF+ et DV3F, 1° pour Cartofriches. Une emprise plus grande est découpée
+automatiquement en tuiles de cette taille maximale. Chaque tuile fait l'objet d'une requête, puis
+les enregistrements strictement identiques renvoyés par plusieurs tuiles sont dédoublonnés. Le nombre
+de tuiles est plafonné par ``MAX_TILES`` : au-delà, une
+:class:`~apifoncier.exceptions.ValidationError` invite à réduire l'emprise ou à relever ce
+plafond. Avec :func:`apifoncier.get`, le paramètre ``max_bbox=None`` supprime tout découpage.
+
+.. code-block:: python
+
+    import apifoncier
+    import apifoncier.dvf_opendata as dvf
+
+    # 0,06° x 0,04° : six tuiles de 0,02° au plus
+    gdf = dvf.geomutations(in_bbox=[3.04, 50.62, 3.10, 50.66], anneemut=2022)
+
+    apifoncier.configure(MAX_TILES=400)  # relève le plafond de tuiles
+
+Requêtes parallèles
+-------------------
+
+Lorsqu'un appel produit plusieurs requêtes (plusieurs départements, codes INSEE répartis en lots de 10,
+codes insérés dans le chemin, tuiles d'une emprise), celles-ci s'exécutent en parallèle sur
+``MAX_WORKERS`` threads. Les résultats sont assemblés dans l'ordre du plan de requêtes, quel que soit l'ordre
+d'arrivée des réponses. ``MAX_WORKERS=1`` rétablit un fonctionnement en série. Pour un appel à plusieurs requêtes,
+la barre de progression compte les requêtes terminées, alors qu'une requête unique affiche la progression par enregistrement.
+
+.. code-block:: python
+
+    apifoncier.configure(MAX_WORKERS=8)   # davantage de requêtes simultanées
+    apifoncier.configure(MAX_WORKERS=1)   # exécution en série
+
+Cache local
+-----------
+
+Un cache HTTP local, facultatif, évite de répéter des requêtes identiques. Il repose sur le paquet
+``requests-cache``, installé avec ``pip install "apifoncier[cache]"``. Sans ce paquet, l'activation du
+cache lève une ``ImportError`` qui indique la commande à exécuter. Les réponses sont stockées dans une base SQLite,
+placée dans le dossier de cache de l'utilisateur ou à l'emplacement donné par ``CACHE_PATH``, et restent
+valides ``CACHE_EXPIRE`` secondes (24 heures par défaut). Seules les réponses de code 200 aux requêtes GET sont conservées.
+:func:`apifoncier.clear_cache` vide le cache.
+
+.. code-block:: python
+
+    apifoncier.configure(CACHE=True, CACHE_EXPIRE=3600)
+
+    df = dvf.mutations(code_insee="59350")   # interroge l'API
+    df = dvf.mutations(code_insee="59350")   # relu depuis le cache
+
+    apifoncier.clear_cache()
+
+L'en-tête ``Authorization`` est exclu de la clé de cache et des réponses stockées : le jeton n'est
+jamais écrit sur disque. Les données à accès restreint mises en cache le sont en revanche en clair.
+Le cache ne doit donc être activé que sur un poste maîtrisé, et vidé après usage.
+
+Pagination et format par appel
+------------------------------
+
+Toutes les fonctions de liste acceptent deux options propres au module, qui ne sont pas transmises à l'API.
+``paginate=False`` ne récupère que la première page, soit ``PAGE_SIZE`` enregistrements au plus, ce qui
+suffit pour un aperçu. ``output`` prend la valeur ``"pandas"``, ``"polars"`` ou ``"dict"`` (liste brute des
+enregistrements) et l'emporte sur ``OUTPUT_FORMAT`` pour l'appel considéré. Pour les fonctions ``geo*``,
+``output="dict"`` renvoie une FeatureCollection GeoJSON, de la forme
+``{"type": "FeatureCollection", "features": [...]}``, et ``output="polars"`` lève une
+:class:`~apifoncier.exceptions.ValidationError`. Ces deux options s'appliquent aussi à
+:func:`apifoncier.get`.
+
+.. code-block:: python
+
+    apercu = dvf.mutations(code_insee="59350", paginate=False)
+    df = dvf.mutations(code_insee="59350", output="polars")
+    lignes = dvf.mutations(code_insee="59350", output="dict")
+    geojson = dvf.geomutations(in_bbox=[3.04, 50.62, 3.06, 50.64], output="dict")
 
 Fonction générique ``get``
 --------------------------
@@ -190,4 +285,5 @@ le même hôte que la requête initiale. Les identifiants insérés dans les che
 (``idpar``, ``idmutation``, ``site_id``, codes des indicateurs, etc.) sont limités aux lettres,
 chiffres et aux caractères ``+ * _ -``, puis encodés, ce qui exclut la traversée de chemin.
 :func:`apifoncier.get_config` masque le jeton. La marche à suivre pour signaler une vulnérabilité figure
-dans le fichier ``SECURITY.md`` du dépôt.
+dans le fichier ``SECURITY.md`` du dépôt. Le cache local, s'il est activé, ne contient jamais le jeton,
+mais il conserve en clair les données à accès restreint déjà téléchargées (voir la section « Cache local »).
