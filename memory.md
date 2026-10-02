@@ -1,6 +1,6 @@
 # memory.md : points à retenir pour reprendre le travail
 
-Dernière mise à jour : 2026-10-01 (refonte 0.1.0, branche `claude/wonderful-tesla-879wks`).
+Dernière mise à jour : 2026-10-02 (refonte 0.1.0 + issues #3 à #9, branche `claude/wonderful-tesla-879wks`, PR #2).
 
 ## Architecture
 
@@ -13,6 +13,12 @@ Dernière mise à jour : 2026-10-01 (refonte 0.1.0, branche `claude/wonderful-te
   Attention : `params = dict(locals())` doit rester la PREMIÈRE instruction de la fonction.
 - `apifoncier/utils.py` : façade de compatibilité (`Resultat`, `get_all_data`, `get_all_geodata`,
   `get_api_response`, `is_num`). Ne pas supprimer sans version majeure.
+- `_query.tile_bbox` découpe un `in_bbox` trop grand (limite `max_bbox` de l'endpoint) en tuiles,
+  plafonnées par `MAX_TILES` ; `collect` exécute un plan de plusieurs requêtes dans un
+  `ThreadPoolExecutor` (`MAX_WORKERS`), conserve l'ordre et dédoublonne (égalité JSON stricte).
+- `fetch` retire `paginate` et `output` des paramètres (options du module, non transmises à l'API).
+- Cache : `requests_cache.CachedSession` (SQLite) si `CACHE=True` ; `Authorization` est exclu
+  par défaut de la clé et des réponses stockées (vérifié par un test).
 - `scripts/generer_dictionnaire.py` génère `docs/dictionnaire_donnees.rst` ; un test échoue s'il est obsolète.
 
 ## Contraintes d'environnement rencontrées
@@ -38,6 +44,12 @@ Dernière mise à jour : 2026-10-01 (refonte 0.1.0, branche `claude/wonderful-te
 3. Les liens `next` sont parfois en `http://` derrière le mandataire : on force le schéma initial.
 4. `page_size=500` accepté sur les endpoints à code dans le chemin (indicateurs).
 5. Valeurs exactes d'`echelle` (`france` : quel `code` ?).
+
+## Issues ouvertes pour la suite (créées le 2026-10-02)
+
+- #3 découpage d'emprise, #4 parallélisme, #5 cache, #6 options par appel : implémentés (commit cffcd1f).
+- #7 actions GitHub Node 24, #8 avertissements Sphinx (`autosectionlabel_maxdepth = 1`, build `-W`) : faits.
+- #9 notebook `docs/examples/nouveautes.ipynb` : rédigé sans sorties, à exécuter quand l'API répondra.
 
 ## Conventions
 
