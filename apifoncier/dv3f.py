@@ -40,6 +40,8 @@ def mutations(
     codtypproa: Multi = None,
     filtre: Optional[str] = None,
     segmtab: Multi = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les mutations issues de DV3F pour le périmètre demandé.
 
@@ -70,6 +72,8 @@ def mutations(
         codtypproa: Code(s) de typologie de l'acheteur ; les premiers niveaux suffisent.
         filtre: Code alphanumérique permettant d'exclure des transactions particulières.
         segmtab: Note(s) de segment du terrain à bâtir.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des mutations (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).
@@ -106,6 +110,8 @@ def geomutations(
     codtypproa: Multi = None,
     filtre: Optional[str] = None,
     segmtab: Multi = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> gpd.GeoDataFrame:
     """Retourne les mutations issues de DV3F avec leurs géométries.
 
@@ -136,6 +142,9 @@ def geomutations(
         codtypproa: Code(s) de typologie de l'acheteur ; les premiers niveaux suffisent.
         filtre: Code alphanumérique permettant d'exclure des transactions particulières.
         segmtab: Note(s) de segment du terrain à bâtir.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"dict"`` pour obtenir une FeatureCollection GeoJSON plutôt
+            qu'un ``GeoDataFrame``.
 
     Returns:
         Un ``GeoDataFrame`` (EPSG:4326) indexé par l'identifiant des mutations.

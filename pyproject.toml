@@ -36,6 +36,7 @@ dependencies = [
 
 [project.optional-dependencies]
 polars = ["polars>=0.20"]
+cache = ["requests-cache>=1.2"]
 
 [dependency-groups]
 dev = [
@@ -44,6 +45,7 @@ dev = [
     "polars>=0.20",
     "pytest>=7",
     "pytest-cov>=4",
+    "requests-cache>=1.2",
     "responses>=0.23",
     "ruff>=0.5",
     "types-requests",

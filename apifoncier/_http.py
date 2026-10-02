@@ -52,13 +52,48 @@ def _user_agent() -> str:
     return f"apifoncier-python/{__version__}"
 
 
+def _new_session() -> requests.Session:
+    """Instancie la session, avec cache local si ``CACHE`` est activé.
+
+    Le cache repose sur ``requests-cache`` (base SQLite). L'en-tête
+    ``Authorization`` est exclu par cette bibliothèque de la clé de cache et
+    des réponses stockées : le jeton n'est jamais écrit sur disque.
+
+    Returns:
+        Une session ``requests`` ou ``requests_cache.CachedSession``.
+
+    Raises:
+        ImportError: Si le cache est demandé sans que ``requests-cache`` soit installé.
+    """
+    if not config.get_param("CACHE"):
+        return requests.Session()
+    try:
+        import requests_cache
+    except ImportError as exc:
+        raise ImportError(
+            "Le cache nécessite le paquet requests-cache : "
+            "pip install 'apifoncier[cache]'."
+        ) from exc
+    path = config.get_param("CACHE_PATH")
+    return requests_cache.CachedSession(
+        cache_name=path or "apifoncier",
+        backend="sqlite",
+        use_cache_dir=path is None,
+        expire_after=config.get_param("CACHE_EXPIRE"),
+        allowable_codes=(200,),
+        allowable_methods=("GET",),
+    )
+
+
 def _build_session() -> requests.Session:
     """Crée une session HTTP configurée selon les paramètres courants.
 
     Returns:
-        Une session avec en-têtes, proxy et stratégie de nouvelles tentatives.
+        Une session avec en-têtes, proxy, cache éventuel et stratégie de
+        nouvelles tentatives, dimensionnée pour ``MAX_WORKERS`` requêtes
+        simultanées.
     """
-    session = requests.Session()
+    session = _new_session()
     session.headers.update({"Accept": "application/json", "User-Agent": _user_agent()})
     retry = Retry(
         total=config.get_param("MAX_ATTEMPTS") - 1,
@@ -68,7 +103,8 @@ def _build_session() -> requests.Session:
         respect_retry_after_header=True,
         raise_on_status=False,
     )
-    adapter = HTTPAdapter(max_retries=retry)
+    pool = max(10, config.get_param("MAX_WORKERS"))
+    adapter = HTTPAdapter(max_retries=retry, pool_connections=pool, pool_maxsize=pool)
     session.mount("https://", adapter)
     session.mount("http://", adapter)
     proxy = config.get_param("PROXY")
@@ -100,6 +136,14 @@ def close_session() -> None:
         if _session is not None:
             _session.close()
             _session = None
+
+
+def clear_cache() -> None:
+    """Vide le cache HTTP local (sans effet si le cache n'est pas activé)."""
+    session = get_session()
+    cache = getattr(session, "cache", None)
+    if cache is not None:
+        cache.clear()
 
 
 def _same_origin(url: str, reference: str) -> bool:

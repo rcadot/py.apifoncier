@@ -35,6 +35,8 @@ def friches(
     surface_max: Optional[float] = None,
     surface_min: Optional[float] = None,
     urba_zone_type: Optional[str] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les friches issues de Cartofriches pour le périmètre demandé.
 
@@ -51,6 +53,8 @@ def friches(
         surface_max: Surface maximale de l'unité foncière (m²).
         surface_min: Surface minimale de l'unité foncière (m²).
         urba_zone_type: Type de zone d'urbanisme.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des friches (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).
@@ -75,6 +79,8 @@ def geofriches(
     surface_max: Optional[float] = None,
     surface_min: Optional[float] = None,
     urba_zone_type: Optional[str] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> gpd.GeoDataFrame:
     """Retourne les friches issues de Cartofriches avec leurs contours.
 
@@ -91,6 +97,9 @@ def geofriches(
         surface_max: Surface maximale de l'unité foncière (m²).
         surface_min: Surface minimale de l'unité foncière (m²).
         urba_zone_type: Type de zone d'urbanisme.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"dict"`` pour obtenir une FeatureCollection GeoJSON plutôt
+            qu'un ``GeoDataFrame``.
 
     Returns:
         Un ``GeoDataFrame`` (EPSG:4326) indexé par l'identifiant des friches.

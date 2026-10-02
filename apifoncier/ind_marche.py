@@ -47,6 +47,8 @@ def prix_volume(
     ordering: Optional[str] = None,
     annee: Optional[Union[int, str]] = None,
     periode: str = "annuel",
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les indicateurs annuels ou triennaux de prix et de volume.
 
@@ -58,6 +60,8 @@ def prix_volume(
         ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
         annee: Année (année centrale pour la période triennale).
         periode: ``"annuel"`` (par défaut) ou ``"triennal"``.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des indicateurs de prix et de volume.
@@ -71,6 +75,7 @@ def prix_volume(
     _check_choice("echelle", echelle, ECHELLES)
     _check_choice("periode", periode, PERIODES)
     params = {"echelle": echelle, "code": code, "ordering": ordering, "annee": annee}
+    params.update(paginate=paginate, output=output)
     return fetch(f"/indicateurs/dv3f/prix/{periode}/", params)
 
 
@@ -79,6 +84,8 @@ def activite(
     code: Codes = None,
     ordering: Optional[str] = None,
     annee: Optional[Union[int, str]] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les indicateurs triennaux d'activité du marché.
 
@@ -88,6 +95,8 @@ def activite(
         code: Code(s) des entités géographiques (requis).
         ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
         annee: Année centrale de la période de trois ans.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des indicateurs d'activité.
@@ -99,6 +108,7 @@ def activite(
     """
     _check_choice("echelle", echelle, ECHELLES)
     params = {"echelle": echelle, "code": code, "ordering": ordering, "annee": annee}
+    params.update(paginate=paginate, output=output)
     return fetch("/indicateurs/dv3f/activite/", params)
 
 
@@ -106,6 +116,8 @@ def accessibilite(
     code: Codes = None,
     ordering: Optional[str] = None,
     annee: Optional[Union[int, str]] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les indicateurs d'accessibilité financière des communes des AAV demandées.
 
@@ -113,6 +125,8 @@ def accessibilite(
         code: Code(s) INSEE des aires d'attraction des villes (requis).
         ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
         annee: Année.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des indicateurs d'accessibilité.
@@ -131,6 +145,8 @@ def valorisation(
     code_insee: Codes = None,
     ordering: Optional[str] = None,
     annee: Optional[Union[int, str]] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les indicateurs de valorisation des communes dans leur AAV ou leur EPCI.
 
@@ -139,6 +155,8 @@ def valorisation(
         code_insee: Code(s) des AAV ou des EPCI (requis).
         ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
         annee: Année centrale de la période de trois ans.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des indicateurs de valorisation.
@@ -150,4 +168,5 @@ def valorisation(
     """
     _check_choice("echelle", echelle, ECHELLES_VALORISATION)
     params = {"code_insee": code_insee, "ordering": ordering, "annee": annee}
+    params.update(paginate=paginate, output=output)
     return fetch(f"/indicateurs/dv3f/valorisation/{echelle}/", params, path_code=True)

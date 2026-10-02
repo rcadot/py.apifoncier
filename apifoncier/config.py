@@ -18,6 +18,11 @@ Clé                 Rôle                                         Valeur par d�
 ``TIMEOUT``         Délai maximal d'attente d'une réponse (s)    ``15``
 ``PAGE_SIZE``       Nombre d'enregistrements par page            ``500``
 ``OUTPUT_FORMAT``   Format des tableaux : pandas ou polars       ``"pandas"``
+``MAX_TILES``       Nombre maximal de tuiles par emprise         ``100``
+``MAX_WORKERS``     Requêtes exécutées en parallèle              ``4``
+``CACHE``           Cache HTTP local (extra ``cache``)           ``False``
+``CACHE_EXPIRE``    Durée de validité du cache (s)               ``86400``
+``CACHE_PATH``      Fichier SQLite du cache                      ``None`` (dossier de cache)
 ==================  ===========================================  ==================================
 
 Les variables d'environnement ``APIFONCIER_TOKEN`` et ``APIFONCIER_BASE_URL``
@@ -48,6 +53,11 @@ CONFIG_INIT: Dict[str, Any] = {
     "TIMEOUT": 15,
     "PAGE_SIZE": 500,
     "OUTPUT_FORMAT": "pandas",
+    "MAX_TILES": 100,
+    "MAX_WORKERS": 4,
+    "CACHE": False,
+    "CACHE_EXPIRE": 86400,
+    "CACHE_PATH": None,
 }
 
 
@@ -151,6 +161,26 @@ def _check_positive_number(value: Any) -> float:
     return value
 
 
+def _check_optional_path(value: Any) -> Optional[str]:
+    """Contrôle un chemin de fichier facultatif.
+
+    Args:
+        value: Valeur à contrôler (chaîne, objet ``Path`` ou ``None``).
+
+    Returns:
+        Le chemin sous forme de chaîne, ou ``None``.
+
+    Raises:
+        ValidationError: Si la valeur est vide.
+    """
+    if value is None:
+        return None
+    path = str(value).strip()
+    if not path:
+        raise ValidationError("CACHE_PATH ne peut pas être vide.")
+    return path
+
+
 def _check_output_format(value: Any) -> str:
     """Contrôle le format de sortie des tableaux.
 
@@ -181,6 +211,11 @@ _VALIDATORS: Dict[str, Callable[[Any], Any]] = {
     "TIMEOUT": _check_positive_number,
     "PAGE_SIZE": _check_positive_int,
     "OUTPUT_FORMAT": _check_output_format,
+    "MAX_TILES": _check_positive_int,
+    "MAX_WORKERS": _check_positive_int,
+    "CACHE": _check_bool,
+    "CACHE_EXPIRE": _check_positive_int,
+    "CACHE_PATH": _check_optional_path,
 }
 
 

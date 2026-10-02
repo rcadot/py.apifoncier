@@ -360,9 +360,108 @@ def test_lon_lat_query():
     assert query["contains_geom"] == ['{"type": "Point", "coordinates": [3.0, 50.0]}']
 
 
-def test_bbox_limits():
-    with pytest.raises(ValidationError, match=r"0\.02"):
+def test_bbox_too_many_tiles():
+    apifoncier.configure(MAX_TILES=10)
+    with pytest.raises(ValidationError, match="MAX_TILES"):
         dvf.mutations(in_bbox=[3, 50, 3.1, 50.1])
+
+
+@responses.activate
+def test_large_bbox_is_tiled_and_deduplicated():
+    url = f"{BASE_URL}/dvf_opendata/geomutations/"
+    shared = feature("m2", 3.02, 50.005, v=2)
+    responses.get(
+        url,
+        json=feature_page([feature("m1", 3.01, 50.005, v=1), shared]),
+        match=[
+            responses.matchers.query_param_matcher(
+                {"in_bbox": "3,50,3.02,50.01", "page_size": "500"}
+            )
+        ],
+    )
+    responses.get(
+        url,
+        json=feature_page([shared, feature("m3", 3.025, 50.005, v=3)]),
+        match=[
+            responses.matchers.query_param_matcher(
+                {"in_bbox": "3.02,50,3.03,50.01", "page_size": "500"}
+            )
+        ],
+    )
+    gdf = dvf.geomutations(in_bbox=[3, 50, 3.03, 50.01])
+    assert list(gdf.index) == ["m1", "m2", "m3"]
+    assert len(responses.calls) == 2
+
+
+@responses.activate
+@pytest.mark.parametrize("workers", [1, 4])
+def test_parallel_requests_keep_order(workers):
+    apifoncier.configure(MAX_WORKERS=workers)
+    url = f"{BASE_URL}/cartofriches/friches/"
+    for dep in ["59", "62", "80"]:
+        responses.get(
+            url,
+            json=page([{"dep": dep}]),
+            match=[
+                responses.matchers.query_param_matcher(
+                    {"coddep": dep, "page_size": "500"}
+                )
+            ],
+        )
+    df = cartofriches.friches(coddep=["59", "62", "80"])
+    assert list(df["dep"]) == ["59", "62", "80"]
+
+
+@responses.activate
+def test_paginate_false_returns_first_page_only():
+    url = f"{BASE_URL}/dvf_opendata/mutations/"
+    responses.get(url, json=page([{"n": 1}], next_url=f"{url}?page=2", count=2))
+    df = dvf.mutations(code_insee="59350", paginate=False)
+    assert list(df["n"]) == [1]
+    assert len(responses.calls) == 1
+
+
+@responses.activate
+def test_output_option_per_call():
+    url = f"{BASE_URL}/dvf_opendata/mutations/"
+    responses.get(url, json=page([{"n": 1}]))
+    assert dvf.mutations(code_insee="59350", output="dict") == [{"n": 1}]
+    assert isinstance(dvf.mutations(code_insee="59350", output="polars"), pl.DataFrame)
+    query = parse_qs(urlparse(responses.calls[0].request.url).query)
+    assert "output" not in query and "paginate" not in query
+
+
+@responses.activate
+def test_geo_output_dict_is_geojson():
+    responses.get(
+        f"{BASE_URL}/cartofriches/geofriches/",
+        json=feature_page([feature("f1", 3, 50)]),
+    )
+    result = cartofriches.geofriches(code_insee="59350", output="dict")
+    assert result["type"] == "FeatureCollection"
+    assert result["features"][0]["id"] == "f1"
+
+
+def test_invalid_output_values():
+    with pytest.raises(ValidationError):
+        cartofriches.geofriches(code_insee="59350", output="polars")
+
+
+@responses.activate
+def test_invalid_table_output():
+    responses.get(f"{BASE_URL}/dvf_opendata/mutations/", json=page([]))
+    with pytest.raises(ValidationError):
+        dvf.mutations(code_insee="59350", output="xlsx")
+
+
+@responses.activate
+def test_indicator_options_are_forwarded():
+    responses.get(
+        f"{BASE_URL}/indicateurs/dv3f/communes/annuel/59350/", json=page([{"v": 1}])
+    )
+    assert prix.communes(code_insee="59350", output="dict") == [{"v": 1}]
+    responses.get(f"{BASE_URL}/indicateurs/dv3f/activite/", json=page([{"v": 2}]))
+    assert marche.activite(echelle="aav", code="001", output="dict") == [{"v": 2}]
 
 
 @pytest.mark.parametrize(

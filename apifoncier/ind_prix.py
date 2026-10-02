@@ -44,6 +44,8 @@ def _fetch_prix(
     ordering: Optional[str],
     annee: Optional[Union[int, str]],
     periode: str,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Interroge l'endpoint de prix d'une échelle géographique.
 
@@ -54,12 +56,20 @@ def _fetch_prix(
         ordering: Champ(s) de tri.
         annee: Année.
         periode: ``"annuel"`` ou ``"triennal"``.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des indicateurs de prix.
     """
     endpoint = f"/indicateurs/dv3f/{echelle}/{_check_periode(periode)}/"
-    params = {code_param: codes, "ordering": ordering, "annee": annee}
+    params = {
+        code_param: codes,
+        "ordering": ordering,
+        "annee": annee,
+        "paginate": paginate,
+        "output": output,
+    }
     return fetch(endpoint, params, path_code=True)
 
 
@@ -68,6 +78,8 @@ def aav(
     ordering: Optional[str] = None,
     annee: Optional[Union[int, str]] = None,
     periode: str = "annuel",
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les indicateurs annuels ou triennaux de prix des aires d'attraction des villes.
 
@@ -76,6 +88,8 @@ def aav(
         ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
         annee: Année.
         periode: ``"annuel"`` (par défaut) ou ``"triennal"``.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des indicateurs de prix.
@@ -85,7 +99,9 @@ def aav(
         >>> prix.aav(code_insee="001")
         >>> prix.aav(code_insee=["001", "002"], periode="triennal")
     """
-    return _fetch_prix("aav", "code_insee", code_insee, ordering, annee, periode)
+    return _fetch_prix(
+        "aav", "code_insee", code_insee, ordering, annee, periode, paginate, output
+    )
 
 
 def communes(
@@ -93,6 +109,8 @@ def communes(
     ordering: Optional[str] = None,
     annee: Optional[Union[int, str]] = None,
     periode: str = "annuel",
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les indicateurs annuels ou triennaux de prix des communes.
 
@@ -101,6 +119,8 @@ def communes(
         ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
         annee: Année.
         periode: ``"annuel"`` (par défaut) ou ``"triennal"``.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des indicateurs de prix.
@@ -110,7 +130,9 @@ def communes(
         >>> prix.communes(code_insee="59350")
         >>> prix.communes(code_insee=["59350", "59646"], annee=2020)
     """
-    return _fetch_prix("communes", "code_insee", code_insee, ordering, annee, periode)
+    return _fetch_prix(
+        "communes", "code_insee", code_insee, ordering, annee, periode, paginate, output
+    )
 
 
 def departements(
@@ -118,6 +140,8 @@ def departements(
     ordering: Optional[str] = None,
     annee: Optional[Union[int, str]] = None,
     periode: str = "annuel",
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les indicateurs annuels ou triennaux de prix des départements.
 
@@ -126,6 +150,8 @@ def departements(
         ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
         annee: Année.
         periode: ``"annuel"`` (par défaut) ou ``"triennal"``.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des indicateurs de prix.
@@ -134,7 +160,9 @@ def departements(
         >>> import apifoncier.ind_prix as prix
         >>> prix.departements(coddep=["59", "62"], periode="triennal")
     """
-    return _fetch_prix("departements", "coddep", coddep, ordering, annee, periode)
+    return _fetch_prix(
+        "departements", "coddep", coddep, ordering, annee, periode, paginate, output
+    )
 
 
 def epci(
@@ -142,6 +170,8 @@ def epci(
     ordering: Optional[str] = None,
     annee: Optional[Union[int, str]] = None,
     periode: str = "annuel",
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les indicateurs annuels ou triennaux de prix des EPCI.
 
@@ -150,6 +180,8 @@ def epci(
         ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
         annee: Année.
         periode: ``"annuel"`` (par défaut) ou ``"triennal"``.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des indicateurs de prix.
@@ -158,7 +190,9 @@ def epci(
         >>> import apifoncier.ind_prix as prix
         >>> prix.epci(code_insee="200093201")
     """
-    return _fetch_prix("epci", "code_insee", code_insee, ordering, annee, periode)
+    return _fetch_prix(
+        "epci", "code_insee", code_insee, ordering, annee, periode, paginate, output
+    )
 
 
 def regions(
@@ -166,6 +200,8 @@ def regions(
     ordering: Optional[str] = None,
     annee: Optional[Union[int, str]] = None,
     periode: str = "annuel",
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les indicateurs annuels ou triennaux de prix des régions.
 
@@ -174,6 +210,8 @@ def regions(
         ordering: Champ(s) de tri, préfixé(s) de ``-`` pour un tri décroissant.
         annee: Année.
         periode: ``"annuel"`` (par défaut) ou ``"triennal"``.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des indicateurs de prix.
@@ -182,4 +220,6 @@ def regions(
         >>> import apifoncier.ind_prix as prix
         >>> prix.regions(code_insee=["32", "11"], annee=2020)
     """
-    return _fetch_prix("regions", "code_insee", code_insee, ordering, annee, periode)
+    return _fetch_prix(
+        "regions", "code_insee", code_insee, ordering, annee, periode, paginate, output
+    )

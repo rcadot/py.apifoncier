@@ -66,6 +66,14 @@ Accès : libre.
      - str
      - ``None``
      - Type de zone d'urbanisme.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``geofriches``
 ^^^^^^^^^^^^^^
@@ -117,6 +125,14 @@ Accès : libre.
      - str
      - ``None``
      - Type de zone d'urbanisme.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"dict"`` pour obtenir une FeatureCollection GeoJSON plutôt qu'un ``GeoDataFrame``.
 
 ``friche``
 ^^^^^^^^^^
@@ -228,6 +244,14 @@ Accès : libre.
      - str \| liste de str
      - ``None``
      - Note(s) de segment du terrain à bâtir.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``geomutations``
 ^^^^^^^^^^^^^^^^
@@ -315,6 +339,14 @@ Accès : libre.
      - str \| liste de str
      - ``None``
      - Note(s) de segment du terrain à bâtir.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"dict"`` pour obtenir une FeatureCollection GeoJSON plutôt qu'un ``GeoDataFrame``.
 
 ``mutation``
 ^^^^^^^^^^^^
@@ -438,6 +470,14 @@ Accès : restreint (jeton).
      - str \| liste de str
      - ``None``
      - Note(s) de segment du terrain à bâtir.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``geomutations``
 ^^^^^^^^^^^^^^^^
@@ -537,6 +577,14 @@ Accès : restreint (jeton).
      - str \| liste de str
      - ``None``
      - Note(s) de segment du terrain à bâtir.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"dict"`` pour obtenir une FeatureCollection GeoJSON plutôt qu'un ``GeoDataFrame``.
 
 ``mutation``
 ^^^^^^^^^^^^
@@ -692,6 +740,14 @@ Accès : restreint (jeton).
      - int
      - ``None``
      - Obsolète, remplacé par ``jannatmin_max``.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``geoparcelles``
 ^^^^^^^^^^^^^^^^
@@ -823,6 +879,14 @@ Accès : restreint (jeton).
      - int
      - ``None``
      - Obsolète, remplacé par ``jannatmin_max``.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"dict"`` pour obtenir une FeatureCollection GeoJSON plutôt qu'un ``GeoDataFrame``.
 
 ``parcelle``
 ^^^^^^^^^^^^
@@ -889,6 +953,14 @@ Accès : restreint (jeton).
      - str
      - ``None``
      - Type de TUP (``SIMPLE``, ``PDLMP`` ou ``UF``).
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``geotups``
 ^^^^^^^^^^^
@@ -936,6 +1008,14 @@ Accès : restreint (jeton).
      - str
      - ``None``
      - Type de TUP (``SIMPLE``, ``PDLMP`` ou ``UF``).
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"dict"`` pour obtenir une FeatureCollection GeoJSON plutôt qu'un ``GeoDataFrame``.
 
 ``tup``
 ^^^^^^^
@@ -1026,6 +1106,14 @@ Accès : restreint (jeton).
      - str \| liste de str
      - ``None``
      - Code(s) de catégorie de local d'activité ; les premiers niveaux suffisent.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``local``
 ^^^^^^^^^
@@ -1096,6 +1184,14 @@ Accès : restreint (jeton).
      - str
      - ``None``
      - Type de droit : propriétaire ou gestionnaire.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``proprio``
 ^^^^^^^^^^^
@@ -1155,6 +1251,14 @@ Accès : libre.
      - int \| str
      - ``None``
      - Année maximale (incluse).
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``departements``
 ^^^^^^^^^^^^^^^^
@@ -1190,6 +1294,14 @@ Accès : libre.
      - int \| str
      - ``None``
      - Année maximale (incluse).
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 Module ``apifoncier.ind_prix``
 ------------------------------
@@ -1226,6 +1338,14 @@ Accès : libre.
      - str
      - ``'annuel'``
      - ``"annuel"`` (par défaut) ou ``"triennal"``.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``communes``
 ^^^^^^^^^^^^
@@ -1257,6 +1377,14 @@ Accès : libre.
      - str
      - ``'annuel'``
      - ``"annuel"`` (par défaut) ou ``"triennal"``.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``departements``
 ^^^^^^^^^^^^^^^^
@@ -1288,6 +1416,14 @@ Accès : libre.
      - str
      - ``'annuel'``
      - ``"annuel"`` (par défaut) ou ``"triennal"``.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``epci``
 ^^^^^^^^
@@ -1319,6 +1455,14 @@ Accès : libre.
      - str
      - ``'annuel'``
      - ``"annuel"`` (par défaut) ou ``"triennal"``.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``regions``
 ^^^^^^^^^^^
@@ -1350,6 +1494,14 @@ Accès : libre.
      - str
      - ``'annuel'``
      - ``"annuel"`` (par défaut) ou ``"triennal"``.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 Module ``apifoncier.ind_marche``
 --------------------------------
@@ -1390,6 +1542,14 @@ Accès : libre.
      - str
      - ``'annuel'``
      - ``"annuel"`` (par défaut) ou ``"triennal"``.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``activite``
 ^^^^^^^^^^^^
@@ -1421,6 +1581,14 @@ Accès : libre.
      - int \| str
      - ``None``
      - Année centrale de la période de trois ans.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``accessibilite``
 ^^^^^^^^^^^^^^^^^
@@ -1448,6 +1616,14 @@ Accès : libre.
      - int \| str
      - ``None``
      - Année.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 ``valorisation``
 ^^^^^^^^^^^^^^^^
@@ -1479,6 +1655,14 @@ Accès : libre.
      - int \| str
      - ``None``
      - Année centrale de la période de trois ans.
+   * - ``paginate``
+     - bool
+     - ``True``
+     - ``False`` pour ne récupérer que la première page.
+   * - ``output``
+     - str
+     - ``None``
+     - ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
 Configuration
 -------------
@@ -1508,6 +1692,16 @@ Paramètres modifiables par :func:`apifoncier.configure` (clés insensibles à l
      - ``500``
    * - ``OUTPUT_FORMAT``
      - ``'pandas'``
+   * - ``MAX_TILES``
+     - ``100``
+   * - ``MAX_WORKERS``
+     - ``4``
+   * - ``CACHE``
+     - ``False``
+   * - ``CACHE_EXPIRE``
+     - ``86400``
+   * - ``CACHE_PATH``
+     - ``None``
 
 Variables d'environnement : ``APIFONCIER_TOKEN`` (jeton, utilisé si ``TOKEN`` n'est pas configuré) et ``APIFONCIER_BASE_URL``.
 

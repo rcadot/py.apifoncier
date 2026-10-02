@@ -66,6 +66,31 @@ def test_invalid_bbox(bbox):
         plan({"in_bbox": bbox})
 
 
+def test_large_bbox_is_tiled():
+    requests_ = plan({"in_bbox": [3, 50, 3.05, 50.03]})
+    tiles = [p["in_bbox"] for _, p in requests_]
+    assert len(tiles) == 3 * 2
+    assert tiles[0] == "3,50,3.02,50.02"
+    assert tiles[-1] == "3.04,50.02,3.05,50.03"
+
+
+def test_tiles_cover_the_bbox_exactly():
+    tiles = _query.tile_bbox([3, 50, 3.1, 50.05], 0.02)
+    boxes = [tuple(map(float, t.split(","))) for t in tiles]
+    assert min(b[0] for b in boxes) == 3 and max(b[2] for b in boxes) == 3.1
+    assert min(b[1] for b in boxes) == 50 and max(b[3] for b in boxes) == 50.05
+    assert all(b[2] - b[0] <= 0.02 + 1e-9 and b[3] - b[1] <= 0.02 + 1e-9 for b in boxes)
+
+
+def test_bbox_param_still_rejects_large_bbox():
+    with pytest.raises(ValidationError):
+        _query.bbox_param([3, 50, 3.5, 50.5], 0.02)
+
+
+def test_deduplicate():
+    assert _query.deduplicate([{"a": 1}, {"a": 1}, {"a": 2}]) == [{"a": 1}, {"a": 2}]
+
+
 def test_bbox_limit_can_be_widened_or_disabled():
     assert plan({"in_bbox": [3, 50, 3.5, 50.5]}, max_bbox=1.0)
     assert plan({"in_bbox": [3, 50, 5, 52]}, max_bbox=None)

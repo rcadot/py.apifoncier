@@ -82,6 +82,8 @@ def parcelles(
     stoth_max: Optional[float] = None,
     jannathmin_min: Optional[int] = None,
     jannathmin_max: Optional[int] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les parcelles issues des Fichiers fonciers pour le périmètre demandé.
 
@@ -119,6 +121,8 @@ def parcelles(
         stoth_max: Surface maximale des pièces d'habitation (m²).
         jannathmin_min: Obsolète, remplacé par ``jannatmin_min``.
         jannathmin_max: Obsolète, remplacé par ``jannatmin_max``.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des parcelles (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).
@@ -163,6 +167,8 @@ def geoparcelles(
     stoth_max: Optional[float] = None,
     jannathmin_min: Optional[int] = None,
     jannathmin_max: Optional[int] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> gpd.GeoDataFrame:
     """Retourne les parcelles issues des Fichiers fonciers avec leurs contours.
 
@@ -200,6 +206,9 @@ def geoparcelles(
         stoth_max: Surface maximale des pièces d'habitation (m²).
         jannathmin_min: Obsolète, remplacé par ``jannatmin_min``.
         jannathmin_max: Obsolète, remplacé par ``jannatmin_max``.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"dict"`` pour obtenir une FeatureCollection GeoJSON plutôt
+            qu'un ``GeoDataFrame``.
 
     Returns:
         Un ``GeoDataFrame`` (EPSG:4326) indexé par l'identifiant des parcelles.
@@ -243,6 +252,8 @@ def tups(
     catpro3: Multi = None,
     idtup: Multi = None,
     typetup: Optional[str] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les unités foncières (TUP) issues des Fichiers fonciers.
 
@@ -259,6 +270,8 @@ def tups(
         catpro3: Code(s) de catégorie de propriétaire ; les premiers niveaux suffisent.
         idtup: Identifiant(s) de TUP (liste ou chaîne séparée par des virgules).
         typetup: Type de TUP (``SIMPLE``, ``PDLMP`` ou ``UF``).
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des TUP (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).
@@ -281,6 +294,8 @@ def geotups(
     catpro3: Multi = None,
     idtup: Multi = None,
     typetup: Optional[str] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> gpd.GeoDataFrame:
     """Retourne les unités foncières (TUP) issues des Fichiers fonciers avec leurs contours.
 
@@ -297,6 +312,9 @@ def geotups(
         catpro3: Code(s) de catégorie de propriétaire ; les premiers niveaux suffisent.
         idtup: Identifiant(s) de TUP (liste ou chaîne séparée par des virgules).
         typetup: Type de TUP (``SIMPLE``, ``PDLMP`` ou ``UF``).
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"dict"`` pour obtenir une FeatureCollection GeoJSON plutôt
+            qu'un ``GeoDataFrame``.
 
     Returns:
         Un ``GeoDataFrame`` (EPSG:4326) indexé par l'identifiant des TUP.
@@ -345,6 +363,8 @@ def locaux(
     slocal_min: Optional[float] = None,
     slocal_max: Optional[float] = None,
     typeact: Multi = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les locaux issus des Fichiers fonciers pour les communes demandées.
 
@@ -363,6 +383,8 @@ def locaux(
         slocal_min: Surface minimale des parties d'évaluation (m²).
         slocal_max: Surface maximale des parties d'évaluation (m²).
         typeact: Code(s) de catégorie de local d'activité ; les premiers niveaux suffisent.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des locaux (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).
@@ -405,6 +427,8 @@ def proprios(
     idprocpte: Optional[str] = None,
     locprop: Multi = None,
     typedroit: Optional[str] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les droits de propriété issus des Fichiers fonciers.
 
@@ -418,6 +442,8 @@ def proprios(
         idprocpte: Identifiant de compte communal.
         locprop: Localisation(s) généralisée(s) du propriétaire.
         typedroit: Type de droit : propriétaire ou gestionnaire.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des droits de propriété (``pandas`` ou ``polars``).

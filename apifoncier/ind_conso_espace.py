@@ -19,6 +19,8 @@ def communes(
     annee: Optional[Union[int, str]] = None,
     annee_min: Optional[Union[int, str]] = None,
     annee_max: Optional[Union[int, str]] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les indicateurs annuels de consommation d'espace des communes.
 
@@ -28,6 +30,8 @@ def communes(
         annee: Année.
         annee_min: Année minimale (incluse).
         annee_max: Année maximale (incluse).
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des indicateurs (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).
@@ -47,6 +51,8 @@ def departements(
     annee: Optional[Union[int, str]] = None,
     annee_min: Optional[Union[int, str]] = None,
     annee_max: Optional[Union[int, str]] = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les indicateurs annuels de consommation d'espace des départements.
 
@@ -56,6 +62,8 @@ def departements(
         annee: Année.
         annee_min: Année minimale (incluse).
         annee_max: Année maximale (incluse).
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des indicateurs (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).

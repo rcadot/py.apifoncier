@@ -35,6 +35,8 @@ def mutations(
     valeurfonc_max: Optional[float] = None,
     vefa: Optional[Union[bool, str]] = None,
     segmtab: Multi = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> Table:
     """Retourne les mutations issues de DVF+ open data pour le périmètre demandé.
 
@@ -62,6 +64,8 @@ def mutations(
         valeurfonc_max: Valeur foncière maximale (€).
         vefa: Vente en l'état futur d'achèvement.
         segmtab: Note(s) de segment du terrain à bâtir.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; par défaut ``OUTPUT_FORMAT``.
 
     Returns:
         Un tableau des mutations (``pandas`` ou ``polars`` selon ``OUTPUT_FORMAT``).
@@ -95,6 +99,8 @@ def geomutations(
     valeurfonc_max: Optional[float] = None,
     vefa: Optional[Union[bool, str]] = None,
     segmtab: Multi = None,
+    paginate: bool = True,
+    output: Optional[str] = None,
 ) -> gpd.GeoDataFrame:
     """Retourne les mutations issues de DVF+ open data avec leurs géométries.
 
@@ -122,6 +128,9 @@ def geomutations(
         valeurfonc_max: Valeur foncière maximale (€).
         vefa: Vente en l'état futur d'achèvement.
         segmtab: Note(s) de segment du terrain à bâtir.
+        paginate: ``False`` pour ne récupérer que la première page.
+        output: ``"dict"`` pour obtenir une FeatureCollection GeoJSON plutôt
+            qu'un ``GeoDataFrame``.
 
     Returns:
         Un ``GeoDataFrame`` (EPSG:4326) indexé par l'identifiant des mutations.

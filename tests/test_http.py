@@ -152,3 +152,36 @@ def test_connection_error_is_raised_after_retries():
     responses.get(URL, body=requests.ConnectionError("réseau indisponible"))
     with pytest.raises(requests.ConnectionError):
         _http.get_api_response(URL)
+
+
+@responses.activate
+def test_cache_avoids_second_request_and_never_stores_token(tmp_path, token):
+    cache_file = tmp_path / "cache.sqlite"
+    apifoncier.configure(CACHE=True, CACHE_PATH=str(cache_file))
+    responses.get(URL, json=page([{"idpar": "1"}]))
+    first = _http.get_api_response(URL, {"code_insee": "59350"}, use_token=True)
+    second = _http.get_api_response(URL, {"code_insee": "59350"}, use_token=True)
+    assert first == second
+    assert len(responses.calls) == 1
+    apifoncier.close_session()
+    assert token.encode() not in cache_file.read_bytes()
+
+
+@responses.activate
+def test_clear_cache(tmp_path):
+    apifoncier.configure(CACHE=True, CACHE_PATH=str(tmp_path / "cache.sqlite"))
+    responses.get(URL, json=page([]))
+    _http.get_api_response(URL)
+    _http.clear_cache()
+    _http.get_api_response(URL)
+    assert len(responses.calls) == 2
+
+
+def test_clear_cache_without_cache_is_noop():
+    _http.clear_cache()
+
+
+def test_pool_size_follows_max_workers():
+    apifoncier.configure(MAX_WORKERS=16)
+    adapter = _http.get_session().get_adapter("https://")
+    assert adapter._pool_maxsize == 16

@@ -22,6 +22,7 @@ import json
 import math
 import re
 import warnings
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 from urllib.parse import quote
 
@@ -196,18 +197,17 @@ def select_location(params: Dict[str, Any]) -> Tuple[str, Any]:
     return first, provided[first]
 
 
-def bbox_param(value: Any, max_size: Optional[float]) -> str:
-    """Valide une emprise rectangulaire et la sérialise.
+def check_bbox(value: Any) -> Tuple[float, float, float, float]:
+    """Valide une emprise rectangulaire.
 
     Args:
         value: Liste ``[lon_min, lat_min, lon_max, lat_max]``.
-        max_size: Largeur et hauteur maximales en degrés (``None`` : pas de limite).
 
     Returns:
-        L'emprise au format ``"lon_min,lat_min,lon_max,lat_max"``.
+        L'emprise sous forme de quadruplet.
 
     Raises:
-        ValidationError: Si l'emprise est mal formée, inversée ou trop grande.
+        ValidationError: Si l'emprise est mal formée, inversée ou hors bornes.
     """
     if (
         not isinstance(value, (list, tuple))
@@ -222,6 +222,74 @@ def bbox_param(value: Any, max_size: Optional[float]) -> str:
         )
     if not (-180 <= lon_min and lon_max <= 180 and -90 <= lat_min and lat_max <= 90):
         raise ValidationError("Le paramètre in_bbox sort des bornes géographiques.")
+    return lon_min, lat_min, lon_max, lat_max
+
+
+def _edges(start: float, stop: float, step: float) -> List[Tuple[float, float]]:
+    """Découpe un intervalle en segments de longueur au plus ``step``.
+
+    Args:
+        start: Borne inférieure.
+        stop: Borne supérieure.
+        step: Longueur maximale d'un segment.
+
+    Returns:
+        La liste des segments ``(début, fin)``, arrondis au millionième de degré.
+    """
+    count = max(1, math.ceil((stop - start) / step - 1e-9))
+    inner = [round(start + i * step, 6) for i in range(1, count)]
+    bounds = [start, *inner, stop]
+    return list(zip(bounds[:-1], bounds[1:]))
+
+
+def tile_bbox(value: Any, max_size: Optional[float]) -> List[str]:
+    """Valide une emprise et la découpe en tuiles respectant la taille maximale.
+
+    Une emprise qui respecte déjà la limite donne une seule tuile.
+
+    Args:
+        value: Liste ``[lon_min, lat_min, lon_max, lat_max]``.
+        max_size: Largeur et hauteur maximales d'une tuile en degrés
+            (``None`` : pas de découpage).
+
+    Returns:
+        Les tuiles au format ``"lon_min,lat_min,lon_max,lat_max"``.
+
+    Raises:
+        ValidationError: Si l'emprise est invalide ou si le nombre de tuiles
+            dépasse ``MAX_TILES``.
+    """
+    lon_min, lat_min, lon_max, lat_max = check_bbox(value)
+    if max_size is None or (
+        lon_max - lon_min <= max_size + 1e-9 and lat_max - lat_min <= max_size + 1e-9
+    ):
+        return [",".join(str(x) for x in value)]
+    lons = _edges(lon_min, lon_max, max_size)
+    lats = _edges(lat_min, lat_max, max_size)
+    limit = config.get_param("MAX_TILES")
+    if len(lons) * len(lats) > limit:
+        raise ValidationError(
+            f"L'emprise in_bbox nécessiterait {len(lons) * len(lats)} tuiles de "
+            f"{max_size}° (MAX_TILES = {limit}) : réduire l'emprise ou augmenter "
+            "MAX_TILES."
+        )
+    return [f"{x0},{y0},{x1},{y1}" for y0, y1 in lats for x0, x1 in lons]
+
+
+def bbox_param(value: Any, max_size: Optional[float]) -> str:
+    """Valide une emprise qui doit tenir en une seule requête et la sérialise.
+
+    Args:
+        value: Liste ``[lon_min, lat_min, lon_max, lat_max]``.
+        max_size: Largeur et hauteur maximales en degrés (``None`` : pas de limite).
+
+    Returns:
+        L'emprise au format ``"lon_min,lat_min,lon_max,lat_max"``.
+
+    Raises:
+        ValidationError: Si l'emprise est mal formée, inversée ou trop grande.
+    """
+    lon_min, lat_min, lon_max, lat_max = check_bbox(value)
     if max_size is not None and (
         lon_max - lon_min > max_size + 1e-9 or lat_max - lat_min > max_size + 1e-9
     ):
@@ -275,7 +343,8 @@ def build_requests(
         params: Paramètres de l'appel (localisation comprise).
         path_code: ``True`` si le code géographique fait partie du chemin
             (``/indicateurs/.../<code>/``) plutôt que de la chaîne de requête.
-        max_bbox: Taille maximale de l'emprise ``in_bbox`` en degrés.
+        max_bbox: Taille maximale de l'emprise ``in_bbox`` en degrés ; une
+            emprise plus grande est découpée en tuiles.
         location_required: ``False`` pour les endpoints sans localisation.
 
     Returns:
@@ -290,7 +359,9 @@ def build_requests(
     if key == "lon_lat":
         return [(endpoint, {**base, **lon_lat_params(value)})]
     if key == "in_bbox":
-        return [(endpoint, {**base, "in_bbox": bbox_param(value, max_bbox)})]
+        return [
+            (endpoint, {**base, "in_bbox": tile}) for tile in tile_bbox(value, max_bbox)
+        ]
 
     codes = as_list(value)
     if not codes:
@@ -321,6 +392,66 @@ def _url(path: str) -> str:
     return f"{config.get_param('BASE_URL')}{path}"
 
 
+def _collect_one(
+    path: str,
+    params: Dict[str, Any],
+    *,
+    use_token: bool,
+    paginate: bool,
+    progress: bool,
+) -> List[Any]:
+    """Exécute une requête et accumule les enregistrements de ses pages.
+
+    Args:
+        path: Chemin de l'endpoint (ou URL absolue).
+        params: Paramètres de la requête.
+        use_token: ``True`` pour les endpoints à accès restreint.
+        paginate: ``True`` pour parcourir les pages suivantes.
+        progress: ``True`` pour afficher une barre de progression par page.
+
+    Returns:
+        Les enregistrements (ou entités GeoJSON) de la requête.
+    """
+    records: List[Any] = []
+    query = {"page_size": config.get_param("PAGE_SIZE"), **params}
+    pbar: Optional[tqdm] = None
+    try:
+        for page, total in iter_pages(_url(path), query, use_token=use_token):
+            records.extend(page)
+            if progress and pbar is None and total:
+                pbar = tqdm(total=total, desc=path, unit="enreg.")
+            if pbar is not None:
+                pbar.update(len(page))
+            if not paginate:
+                break
+    finally:
+        if pbar is not None:
+            pbar.close()
+    return records
+
+
+def deduplicate(records: List[Any]) -> List[Any]:
+    """Retire les enregistrements strictement identiques, en conservant l'ordre.
+
+    Utile lorsque plusieurs requêtes (tuiles d'une emprise, notamment)
+    renvoient le même objet.
+
+    Args:
+        records: Enregistrements ou entités GeoJSON.
+
+    Returns:
+        Les enregistrements sans doublon.
+    """
+    seen: set = set()
+    unique: List[Any] = []
+    for record in records:
+        key = json.dumps(record, sort_keys=True, default=str)
+        if key not in seen:
+            seen.add(key)
+            unique.append(record)
+    return unique
+
+
 def collect(
     requests_: Sequence[Tuple[str, Dict[str, Any]]],
     *,
@@ -328,6 +459,9 @@ def collect(
     paginate: bool = True,
 ) -> List[Any]:
     """Exécute les requêtes et accumule les enregistrements de toutes les pages.
+
+    Plusieurs requêtes sont exécutées en parallèle (``MAX_WORKERS``), leurs
+    résultats sont concaténés dans l'ordre du plan puis dédoublonnés.
 
     Args:
         requests_: Couples ``(chemin, paramètres)`` à interroger.
@@ -337,40 +471,50 @@ def collect(
     Returns:
         La liste de tous les enregistrements (ou entités GeoJSON).
     """
-    records: List[Any] = []
     show = bool(config.get_param("PROGRESS_BAR"))
-    page_size = config.get_param("PAGE_SIZE")
-    for path, params in requests_:
-        query = {"page_size": page_size, **params}
-        pbar: Optional[tqdm] = None
-        try:
-            for page, total in iter_pages(_url(path), query, use_token=use_token):
-                records.extend(page)
-                if show and pbar is None and total:
-                    pbar = tqdm(total=total, desc=path, unit="enreg.")
-                if pbar is not None:
-                    pbar.update(len(page))
-                if not paginate:
-                    break
-        finally:
-            if pbar is not None:
-                pbar.close()
-    return records
+    if len(requests_) == 1:
+        path, params = requests_[0]
+        return _collect_one(
+            path, params, use_token=use_token, paginate=paginate, progress=show
+        )
+
+    def run(item: Tuple[str, Dict[str, Any]]) -> List[Any]:
+        return _collect_one(
+            item[0], item[1], use_token=use_token, paginate=paginate, progress=False
+        )
+
+    workers = min(config.get_param("MAX_WORKERS"), len(requests_))
+    results: List[List[Any]] = []
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        iterator: Iterable[List[Any]] = executor.map(run, requests_)
+        if show:
+            iterator = tqdm(
+                iterator, total=len(requests_), desc=requests_[0][0], unit="requête"
+            )
+        results.extend(iterator)
+    return deduplicate([record for result in results for record in result])
 
 
-def to_table(records: List[Dict[str, Any]]) -> Table:
-    """Assemble des enregistrements en tableau selon ``OUTPUT_FORMAT``.
+def to_table(records: List[Dict[str, Any]], output: Optional[str] = None) -> Any:
+    """Assemble des enregistrements dans le format demandé.
 
     Args:
         records: Enregistrements renvoyés par l'API.
+        output: ``"pandas"``, ``"polars"`` ou ``"dict"`` ; ``None`` pour
+            appliquer ``OUTPUT_FORMAT``.
 
     Returns:
-        Un ``pandas.DataFrame`` ou un ``polars.DataFrame``.
+        Un ``pandas.DataFrame``, un ``polars.DataFrame`` ou la liste brute
+        des enregistrements.
 
     Raises:
+        ValidationError: Si le format n'est pas reconnu.
         ImportError: Si le format polars est demandé sans que polars soit installé.
     """
-    if config.get_param("OUTPUT_FORMAT") == "polars":
+    fmt = output or config.get_param("OUTPUT_FORMAT")
+    if fmt == "dict":
+        return records
+    if fmt == "polars":
         try:
             import polars as pl
         except ImportError as exc:  # pragma: no cover - dépend de l'environnement
@@ -379,7 +523,11 @@ def to_table(records: List[Dict[str, Any]]) -> Table:
                 "pip install 'apifoncier[polars]'."
             ) from exc
         return pl.DataFrame(records, infer_schema_length=None)
-    return pd.DataFrame.from_records(records)
+    if fmt == "pandas":
+        return pd.DataFrame.from_records(records)
+    raise ValidationError(
+        f"output doit valoir 'pandas', 'polars' ou 'dict', reçu {output!r}."
+    )
 
 
 def to_geodataframe(features: List[Dict[str, Any]]) -> gpd.GeoDataFrame:
@@ -412,8 +560,11 @@ def fetch(
     path_code: bool = False,
     max_bbox: Optional[float] = BBOX_MAX_DEFAULT,
     location_required: bool = True,
-) -> Union[Table, gpd.GeoDataFrame]:
+) -> Any:
     """Interroge un endpoint de liste et renvoie un tableau.
+
+    Les clés ``paginate`` et ``output`` de ``params`` sont des options du
+    module et ne sont pas transmises à l'API.
 
     Args:
         endpoint: Chemin de l'endpoint, terminé par ``/``.
@@ -421,22 +572,40 @@ def fetch(
         use_token: ``True`` pour les endpoints à accès restreint.
         geo: ``True`` pour un endpoint GeoJSON.
         path_code: ``True`` si le code géographique fait partie du chemin.
-        max_bbox: Taille maximale de l'emprise ``in_bbox`` en degrés.
+        max_bbox: Taille maximale d'une requête ``in_bbox`` en degrés.
         location_required: ``False`` pour les endpoints sans localisation.
 
     Returns:
-        Un ``GeoDataFrame`` si ``geo`` est vrai, sinon un tableau au format
-        défini par ``OUTPUT_FORMAT``.
+        Pour un endpoint GeoJSON, un ``GeoDataFrame`` (ou une
+        FeatureCollection si ``output="dict"``) ; sinon un tableau au format
+        demandé.
+
+    Raises:
+        ValidationError: Si ``output`` n'est pas compatible avec l'endpoint.
     """
+    params = dict(params)
+    paginate = params.pop("paginate", True)
+    output = params.pop("output", None)
+    if paginate is None:
+        paginate = True
+    if geo and output not in (None, "pandas", "dict"):
+        raise ValidationError(
+            "Pour un endpoint géographique, output doit valoir 'pandas' "
+            f"(GeoDataFrame) ou 'dict' (GeoJSON), reçu {output!r}."
+        )
     plan = build_requests(
         endpoint,
-        dict(params),
+        params,
         path_code=path_code,
         max_bbox=max_bbox,
         location_required=location_required,
     )
-    records = collect(plan, use_token=use_token)
-    return to_geodataframe(records) if geo else to_table(records)
+    records = collect(plan, use_token=use_token, paginate=bool(paginate))
+    if geo:
+        if output == "dict":
+            return {"type": "FeatureCollection", "features": records}
+        return to_geodataframe(records)
+    return to_table(records, output)
 
 
 def fetch_one(path: str, *, use_token: bool = False) -> Table:

@@ -25,7 +25,7 @@ from typing import Any, Optional
 __version__ = "0.1.0"
 
 from . import config
-from ._http import close_session
+from ._http import clear_cache, close_session
 from ._query import BBOX_MAX_DEFAULT, fetch
 from .config import configure, get_config, reset
 from .exceptions import (
@@ -61,11 +61,13 @@ def get(
         geo: ``True`` pour un endpoint GeoJSON (renvoie un ``GeoDataFrame``).
         use_token: ``True`` pour un endpoint à accès restreint.
         path_code: ``True`` si le code géographique fait partie du chemin.
-        max_bbox: Taille maximale de l'emprise ``in_bbox`` en degrés
-            (``None`` pour ne pas contrôler).
+        max_bbox: Taille maximale d'une requête ``in_bbox`` en degrés ; une
+            emprise plus grande est découpée en tuiles (``None`` pour ne
+            jamais découper).
         **params: Paramètres de la requête ; ``lon_lat``, ``in_bbox``,
             ``code_insee``, ``code`` ou ``coddep`` sont traités comme
-            paramètres de localisation.
+            paramètres de localisation, ``paginate`` et ``output`` comme
+            options du module (voir les fonctions de liste).
 
     Returns:
         Un ``GeoDataFrame`` si ``geo`` est vrai, sinon un tableau au format
@@ -118,6 +120,7 @@ __all__ = [
     "ValidationError",
     "__version__",
     "cartofriches",
+    "clear_cache",
     "close_session",
     "config",
     "configure",
